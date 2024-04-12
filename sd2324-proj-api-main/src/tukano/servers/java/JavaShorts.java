@@ -16,6 +16,7 @@ import tukano.discovery.Discovery;
 import tukano.persistence.Hibernate;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -233,8 +234,13 @@ public class JavaShorts implements Shorts {
 
         var likes = db.sql("SELECT * FROM Likes l WHERE l.shortId LIKE '" + shortId + "'", Like.class);
 
+        List<String> usersThatLiked = new ArrayList<>();
+        for(Like like: likes) {
+            usersThatLiked.add(like.getUserId());
+        }
+
         //supostamente é para retornar uma lista de Strings vazia??
-        return Result.ok(likes);
+        return Result.ok(usersThatLiked);
     }
 
     @Override
