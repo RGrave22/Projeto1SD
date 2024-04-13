@@ -82,11 +82,11 @@ public class Short {
 	}
 
 	public void addLike() {
-		this.totalLikes += 1;
+		totalLikes += 1;
 	}
 
 	public void removeLike() {
-		this.totalLikes -= 1;
+		totalLikes -= 1;
 	}
 
 	@Override

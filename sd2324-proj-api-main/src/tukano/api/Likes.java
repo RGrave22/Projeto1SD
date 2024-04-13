@@ -1,14 +1,12 @@
 package tukano.api;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
 import java.util.UUID;
 
 @Entity
-public class Like {
+public class Likes {
 
     @Id
     private String id;
@@ -19,9 +17,9 @@ public class Like {
     private String shortId;
 
 
-    public Like() {}
+    public Likes() {}
 
-    public Like(String userId, String shortId) {
+    public Likes(String userId, String shortId) {
         this.id = UUID.randomUUID().toString();
         this.userId = userId;
         this.shortId = shortId;

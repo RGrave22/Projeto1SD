@@ -1,7 +1,7 @@
 package tukano.servers.java;
 
 import tukano.api.Follower;
-import tukano.api.Like;
+import tukano.api.Likes;
 import tukano.api.Short;
 import tukano.api.User;
 import tukano.api.java.Result;
@@ -47,7 +47,6 @@ public class JavaShorts implements Shorts {
 
         Short shortObj = resultsShort.get(0);
         String userId = shortObj.getOwnerId();
-        var resultsUser = db.sql("SELECT * FROM User u WHERE u.userId LIKE '" + userId + "'", User.class);
 
         // Obtem o user, se existir, verificando se a pwd esta correta
         Result<User> userResult = restUsersServer.getUser(userId, password);
@@ -57,11 +56,14 @@ public class JavaShorts implements Shorts {
         } else if(userResult.equals(Result.error(Result.ErrorCode.FORBIDDEN))) {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
-        User user = userResult.value();
 
-        if(user.getPwd().equals(password)) {
-            return Result.error(Result.ErrorCode.FORBIDDEN);
-        }
+        db.delete(shortObj);
+//        User user = userResult.value();
+
+        //O que é que isto estava aqui a fazer? XD
+//        if(user.getPwd().equals(password)) {
+//            return Result.error(Result.ErrorCode.FORBIDDEN);
+//        }
 
         return Result.ok();
     }
@@ -161,7 +163,7 @@ public class JavaShorts implements Shorts {
 
     @Override
     public Result<Void> like(String shortId, String userId, boolean isLiked, String password) {
-        var result = db.sql("SELECT * FROM Shorts s WHERE s.shortID LIKE '" + shortId + "'", Short.class);
+        var result = db.sql("SELECT * FROM Short s WHERE s.shortId LIKE '" + shortId + "'", Short.class);
 
         if(result.isEmpty()) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
@@ -176,19 +178,22 @@ public class JavaShorts implements Shorts {
         }
 
 
-        var result2 = db.sql("SELECT * FROM Likes l WHERE l.userId LIKE '" + userId + "' AND l.shortId LIKE '" + shortId + "'", Like.class);
+        var result2 = db.sql("SELECT * FROM Likes l WHERE l.userId LIKE '" + userId + "' AND l.shortId LIKE '" + shortId + "'", Likes.class);
+
         if(isLiked){
 
             if(!result2.isEmpty()) {
                 return Result.error(Result.ErrorCode.CONFLICT);
             }
 
-            Like like = new Like(userId,shortId);
+            Likes likes = new Likes(userId,shortId);
             Short shortObj = result.get(0);
 
-            shortObj.addLike();
-
-            db.persist(like);
+            db.persist(likes);
+            int nlikes = shortObj.getTotalLikes();
+            shortObj.setTotalLikes(nlikes+1);
+            db.update(shortObj);
+//            shortObj.addLike();
 
         } else {
 
@@ -196,19 +201,21 @@ public class JavaShorts implements Shorts {
                 return Result.error(Result.ErrorCode.NOT_FOUND);
             }
 
-            Like like = result2.get(0);
+            Likes likes = result2.get(0);
             Short shortObj = result.get(0);
 
-            shortObj.removeLike();
-
-            db.delete(like);
+            db.delete(likes);
+            int nlikes = shortObj.getTotalLikes();
+            shortObj.setTotalLikes(nlikes-1);
+            db.update(shortObj);
+//            shortObj.removeLike();
         }
         return Result.ok();
     }
 
     @Override
     public Result<List<String>> likes(String shortId, String password) {
-        var result = db.sql("SELECT * FROM Shorts s WHERE s.shortID LIKE '" + shortId + "'", Short.class);
+        var result = db.sql("SELECT * FROM Short s WHERE s.shortID LIKE '" + shortId + "'", Short.class);
 
         if(result.isEmpty()) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
@@ -224,10 +231,10 @@ public class JavaShorts implements Shorts {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
 
-        var likes = db.sql("SELECT * FROM Likes l WHERE l.shortId LIKE '" + shortId + "'", Like.class);
+        var likes = db.sql("SELECT * FROM Likes l WHERE l.shortId LIKE '" + shortId + "'", Likes.class);
 
         List<String> usersThatLiked = new ArrayList<>();
-        for(Like like: likes) {
+        for(Likes like: likes) {
             usersThatLiked.add(like.getUserId());
         }
 
@@ -246,11 +253,14 @@ public class JavaShorts implements Shorts {
         }
 
         var followedUsers = db.sql("SELECT f.followed FROM Follower f WHERE f.follower LIKE '" + userId + "'", String.class);
+        //o proprio user tambem faz parte do feed
+        followedUsers.add(userId);
 
         List<Short> feed = new ArrayList<>();
         for(String followedUser: followedUsers) {
             feed.addAll(db.sql("SELECT * FROM Short s WHERE s.ownerId LIKE '" + followedUser + "'", Short.class));
         }
+
 
         Comparator<Short> comparator = new Comparator<Short>() {
             @Override
@@ -265,7 +275,7 @@ public class JavaShorts implements Shorts {
 
         List<String> feedIds = new ArrayList<>();
         for(Short shortObj: feed){
-            feedIds.addLast(shortObj.getShortId());
+            feedIds.add(feed.size()-1,shortObj.getShortId());
         }
 
         return Result.ok(feedIds);
