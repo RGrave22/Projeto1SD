@@ -1,10 +1,5 @@
 package tukano.servers.java;
 
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 import tukano.api.Follower;
 import tukano.api.Like;
 import tukano.api.Short;
@@ -15,10 +10,7 @@ import tukano.clients.rest.RestUsersClient;
 import tukano.discovery.Discovery;
 import tukano.persistence.Hibernate;
 
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class JavaShorts implements Shorts {
 
@@ -37,10 +29,8 @@ public class JavaShorts implements Shorts {
         String shortId = UUID.randomUUID().toString();
         String ownerId = user.getUserId();
         String blobUrl = "null";
-        long timestamp = System.currentTimeMillis();
-        int totalLikes = 0;
 
-        Short shortObj = new Short(shortId, ownerId, blobUrl, timestamp, totalLikes);
+        Short shortObj = new Short(shortId, ownerId, blobUrl);
 
         db.persist(shortObj);
 
@@ -59,7 +49,15 @@ public class JavaShorts implements Shorts {
         String userId = shortObj.getOwnerId();
         var resultsUser = db.sql("SELECT * FROM User u WHERE u.userId LIKE '" + userId + "'", User.class);
 
-        User user = resultsUser.get(0);
+        // Obtem o user, se existir, verificando se a pwd esta correta
+        Result<User> userResult = restUsersServer.getUser(userId, password);
+
+        if(userResult.equals(Result.error(Result.ErrorCode.NOT_FOUND))) {
+            return Result.error(Result.ErrorCode.NOT_FOUND);
+        } else if(userResult.equals(Result.error(Result.ErrorCode.FORBIDDEN))) {
+            return Result.error(Result.ErrorCode.FORBIDDEN);
+        }
+        User user = userResult.value();
 
         if(user.getPwd().equals(password)) {
             return Result.error(Result.ErrorCode.FORBIDDEN);
@@ -83,25 +81,36 @@ public class JavaShorts implements Shorts {
 
     @Override
     public Result<List<String>> getShorts(String userId) {
-        var result = db.sql("SELECT * FROM Short s WHERE s.userId LIKE '" + userId + "'", String.class);
+        Result<List<User>> usersListResult = restUsersServer.searchUsers(userId);
+        List<User> usersList = usersListResult.value();
 
-        if(result.isEmpty()) {
-            return Result.error(Result.ErrorCode.NOT_FOUND);
+        // Se nenhum user tiver o userId igual ao userId2 return NOT_FOUND
+        for(User user : usersList) {
+            if (user.getUserId().equals(userId)) {
+                var result = db.sql("SELECT s.shortId FROM Short s WHERE s.ownerId LIKE '" + userId + "'", String.class);
+                return Result.ok(result);
+            }
         }
-
-        return Result.ok(result);
+        return Result.error(Result.ErrorCode.NOT_FOUND);
     }
 
+    // PERGUNTAR: Devemos colocar a informacao do follow na BD do server Users ou na do server Shorts
     @Override
     public Result<Void> follow(String userId1, String userId2, boolean isFollowing, String password) {
 
-        // Obtem o user, se existir, verificando se a psw esta correta
+        // Obtem o user, se existir, verificando se a pwd esta correta
         Result<User> userResult = restUsersServer.getUser(userId1, password);
 
         if(userResult.equals(Result.error(Result.ErrorCode.NOT_FOUND))) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
         } else if(userResult.equals(Result.error(Result.ErrorCode.FORBIDDEN))) {
             return Result.error(Result.ErrorCode.FORBIDDEN);
+        }
+
+        var result = db.sql("SELECT f.follower FROM Follower f WHERE f.followed LIKE '" + userId2 + "'", String.class);
+
+        if(result.contains(userId1) && isFollowing) {
+            return Result.error(Result.ErrorCode.CONFLICT);
         }
 
         // Obtem todos os users que tenham uma pattern igual a userId2
@@ -115,8 +124,10 @@ public class JavaShorts implements Shorts {
             if(followed.getUserId().equals(userId2)) {
                 User follower = userResult.value();
                 Follower followerRelationship = new Follower(follower.getUserId(), followed.getUserId());
+
                 if(isFollowing) {
                     // Ao user1 adicionar à lista de followers o user2
+
                     db.persist(followerRelationship);
                 } else {
                     // Ao user1 remover da lista de followers o user2
@@ -126,23 +137,6 @@ public class JavaShorts implements Shorts {
                 return Result.error(Result.ErrorCode.NOT_FOUND);
             }
         }
-
-        //Se nenhum user tiver o userId igual ao userId2 return NOT_FOUND
-//        for(User followed : usersList) {
-//            if(followed.getUserId().equals(userId2)) {
-//                User follower = userResult.value();
-//                Follower followerRelationship = new Follower(follower, followed);
-//                if(isFollowing) {
-//                    // Ao user1 adicionar ah lista de followers o user2
-//                    db.persist(followerRelationship);
-//                } else {
-//                    // Ao user1 remover da lista de followers o user2
-//                    db.delete(followerRelationship);
-//                }
-//            } else {
-//                return Result.error(Result.ErrorCode.NOT_FOUND);
-//            }
-//        }
 
         return Result.ok();
     }
@@ -159,12 +153,10 @@ public class JavaShorts implements Shorts {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
 
-        User user = userResult.value();
+        // Gets all the users that follow another user
+        var result = db.sql("SELECT f.follower FROM Follower f WHERE f.followed LIKE '" + userId + "'", String.class);
 
-
-
-
-        return null;
+        return Result.ok(result);
     }
 
     @Override
@@ -245,8 +237,42 @@ public class JavaShorts implements Shorts {
 
     @Override
     public Result<List<String>> getFeed(String userId, String password) {
-        return null;
+        Result<User> userResult = restUsersServer.getUser(userId, password);
+
+        if(userResult.equals(Result.error(Result.ErrorCode.NOT_FOUND))) {
+            return Result.error(Result.ErrorCode.NOT_FOUND);
+        } else if(userResult.equals(Result.error(Result.ErrorCode.FORBIDDEN))) {
+            return Result.error(Result.ErrorCode.FORBIDDEN);
+        }
+
+        var followedUsers = db.sql("SELECT f.followed FROM Follower f WHERE f.follower LIKE '" + userId + "'", String.class);
+
+        List<Short> feed = new ArrayList<>();
+        for(String followedUser: followedUsers) {
+            feed.addAll(db.sql("SELECT * FROM Short s WHERE s.ownerId LIKE '" + followedUser + "'", Short.class));
+        }
+
+        Comparator<Short> comparator = new Comparator<Short>() {
+            @Override
+            public int compare(Short o1, Short o2) {
+                long timestamp1 = o1.getTimestamp();
+                long timestamp2 = o2.getTimestamp();
+                return Long.compare(timestamp1, timestamp2);
+            }
+        };
+
+        feed.sort(comparator);
+
+        List<String> feedIds = new ArrayList<>();
+        for(Short shortObj: feed){
+            feedIds.addLast(shortObj.getShortId());
+        }
+
+        return Result.ok(feedIds);
     }
+
+
+
 
 
 

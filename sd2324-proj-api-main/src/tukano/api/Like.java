@@ -11,17 +11,18 @@ import java.util.UUID;
 public class Like {
 
     @Id
-    String id = this.id = UUID.randomUUID().toString();
+    private String id;
 
 
-    String userId;
+    private String userId;
 
-    String shortId;
+    private String shortId;
 
 
     public Like() {}
 
     public Like(String userId, String shortId) {
+        this.id = UUID.randomUUID().toString();
         this.userId = userId;
         this.shortId = shortId;
     }

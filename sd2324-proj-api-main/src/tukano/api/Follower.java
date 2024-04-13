@@ -1,15 +1,12 @@
 package tukano.api;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import tukano.api.rest.RestFollower;
 
 import java.util.UUID;
 
 @Entity
-public class Follower implements RestFollower {
+public class Follower {
 
     @Id
     private String id;
@@ -17,13 +14,6 @@ public class Follower implements RestFollower {
 
     private String follower;
     private String followed;
-
-
-//    private User follower;
-//
-//
-//    private User followed;
-
 
     public Follower() {}
 
@@ -33,7 +23,7 @@ public class Follower implements RestFollower {
         this.followed = followed;
     }
 
-    public String bgetFollower() {
+    public String getFollower() {
         return follower;
     }
 

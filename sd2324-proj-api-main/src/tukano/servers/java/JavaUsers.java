@@ -56,31 +56,36 @@ public class JavaUsers implements Users {
     @Override
     public Result<User> updateUser(String userId, String pwd, User newUser) {
 
+        // Check if the user tries to update the userId, or if userId, or pwd is valid
+        if(newUser.getUserId() != null || userId == null || pwd == null){
+            return Result.error( Result.ErrorCode.BAD_REQUEST);
+        }
+
         var results = db.sql("SELECT * FROM User u WHERE u.userId LIKE '" + userId + "'", User.class);
 
+        // Check if the user exists
         if( results.isEmpty() ) {
             return Result.error( Result.ErrorCode.NOT_FOUND);
         }
 
-        // Check if userId and pwd is valid
-        if(userId == null || pwd == null) {
-            return Result.error( Result.ErrorCode.BAD_REQUEST);
-        }
-
         User user = results.get(0);
+
         //Check if the password is correct
         if(!pwd.equals(user.getPwd())) {
             return Result.error( Result.ErrorCode.FORBIDDEN);
         }
 
+        // Updates the pwd
         if(newUser.getPwd() != null) {
             user.setPwd(newUser.getPwd());
         }
 
+        //Updates the email
         if(newUser.getEmail() != null) {
             user.setEmail(newUser.getEmail());
         }
 
+        // Updates the display name
         if(newUser.getDisplayName() != null) {
             user.setDisplayName(newUser.getDisplayName());
         }
@@ -94,6 +99,7 @@ public class JavaUsers implements Users {
     public Result<User> deleteUser(String userId, String pwd) {
         var results = db.sql("SELECT * FROM User u WHERE u.userId LIKE '" + userId + "'", User.class);
 
+        // Check if the user exists
         if( results.isEmpty() ) {
             return Result.error( Result.ErrorCode.NOT_FOUND);
         }
