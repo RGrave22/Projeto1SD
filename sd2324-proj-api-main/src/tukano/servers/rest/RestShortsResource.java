@@ -6,16 +6,13 @@ import tukano.api.Short;
 import tukano.api.java.Result;
 import tukano.api.java.Shorts;
 import tukano.api.rest.RestShorts;
-import tukano.discovery.Discovery;
 import tukano.servers.java.JavaShorts;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 public class RestShortsResource implements RestShorts {
 
     final Shorts impl;
-    private static Logger Log = Logger.getLogger(Discovery.class.getName());
 
     public RestShortsResource() {
         this.impl = new JavaShorts();

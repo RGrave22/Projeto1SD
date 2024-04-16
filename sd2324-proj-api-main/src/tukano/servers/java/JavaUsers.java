@@ -3,6 +3,8 @@ package tukano.servers.java;
 import tukano.api.User;
 import tukano.api.java.Result;
 import tukano.api.java.Users;
+import tukano.clients.rest.RestShortsClient;
+import tukano.discovery.Discovery;
 import tukano.persistence.Hibernate;
 
 import java.util.List;
@@ -10,6 +12,9 @@ import java.util.List;
 public class JavaUsers implements Users {
 
     Hibernate db = Hibernate.getInstance();
+    Discovery discovery = Discovery.getInstance();
+    RestShortsClient restShortsServer = new RestShortsClient(discovery.knownUrisOf("shorts", 1)[0]);
+
 
     @Override
     public Result<String> createUser(User user) {
@@ -115,6 +120,31 @@ public class JavaUsers implements Users {
             return Result.error( Result.ErrorCode.FORBIDDEN);
         }
 
+
+        Result<List<String>> shortsClient = restShortsServer.getShorts(userId);
+
+        if(shortsClient.isOK()) {
+            List<String> shortsList = shortsClient.value();
+
+            for(String shortId: shortsList) {
+                restShortsServer.deleteShort(shortId, pwd);
+            }
+        }
+
+        Result<List<String>> shortsFollowers = restShortsServer.followers(userId, pwd);
+
+        if(shortsFollowers.isOK()) {
+            List<String> shortsListFollowers = shortsFollowers.value();
+
+            for (String userId2 : shortsListFollowers) {
+                restShortsServer.follow(userId, userId2, false, pwd);
+
+                var resultUser = db.sql("SELECT u.pwd FROM User u WHERE u.userId LIKE '" + userId2 + "'", String.class);
+                String pwd2 = resultUser.get(0);
+                restShortsServer.follow(userId2, userId, false, pwd2);
+            }
+        }
+
         db.delete(user);
 
         return Result.ok(user);
@@ -126,11 +156,4 @@ public class JavaUsers implements Users {
 
         return Result.ok(results);
     }
-
-
-
-
-
-
-
 }

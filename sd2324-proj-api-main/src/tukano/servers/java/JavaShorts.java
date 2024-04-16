@@ -14,6 +14,8 @@ import java.util.*;
 
 public class JavaShorts implements Shorts {
 
+    private static final String BLOB_URL = "%s/blobs/%s?verifier=%s";
+
     Hibernate db = Hibernate.getInstance();
     Discovery discovery = Discovery.getInstance();
     RestUsersClient restUsersServer = new RestUsersClient(discovery.knownUrisOf("users", 1)[0]);
@@ -28,7 +30,12 @@ public class JavaShorts implements Shorts {
 
         String shortId = UUID.randomUUID().toString();
         String ownerId = user.getUserId();
-        String blobUrl = "null";
+
+        String blobUri = String.valueOf(discovery.knownUrisOf("blobs", 1)[0]);
+        String blobId = "SH" + UUID.randomUUID();
+        String verificationToken = UUID.randomUUID().toString();
+
+        String blobUrl = String.format(BLOB_URL, blobUri, blobId, verificationToken);
 
         Short shortObj = new Short(shortId, ownerId, blobUrl);
 
@@ -57,13 +64,12 @@ public class JavaShorts implements Shorts {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
 
-        db.delete(shortObj);
-//        User user = userResult.value();
+        var resultLikes = db.sql("SELECT * FROM Likes l WHERE l.shortId LIKE '" + shortId + "'", Likes.class);
+        for(Likes like: resultLikes) {
+            db.delete(like);
+        }
 
-        //O que é que isto estava aqui a fazer? XD
-//        if(user.getPwd().equals(password)) {
-//            return Result.error(Result.ErrorCode.FORBIDDEN);
-//        }
+        db.delete(shortObj);
 
         return Result.ok();
     }
@@ -109,30 +115,30 @@ public class JavaShorts implements Shorts {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
 
-        var result = db.sql("SELECT f.follower FROM Follower f WHERE f.followed LIKE '" + userId2 + "'", String.class);
+        var result = db.sql("SELECT * FROM Follower f WHERE f.follower LIKE '" + userId1 + "' AND f.followed LIKE '" + userId2 + "'", Follower.class);
 
-        if(result.contains(userId1) && isFollowing) {
+        if(!result.isEmpty() && isFollowing) {
             return Result.error(Result.ErrorCode.CONFLICT);
+        }
+
+        if(result.isEmpty() && !isFollowing) {
+            return Result.ok();
         }
 
         // Obtem todos os users que tenham uma pattern igual a userId2
         Result<List<User>> usersListResult = restUsersServer.searchUsers(userId2);
         List<User> usersList = usersListResult.value();
 
-
-
         // Se nenhum user tiver o userId igual ao userId2 return NOT_FOUND
         for(User followed : usersList) {
             if(followed.getUserId().equals(userId2)) {
-                User follower = userResult.value();
-                Follower followerRelationship = new Follower(follower.getUserId(), followed.getUserId());
-
                 if(isFollowing) {
-                    // Ao user1 adicionar à lista de followers o user2
+                    User follower = userResult.value();
+                    Follower followerRelationship = new Follower(follower.getUserId(), followed.getUserId());
 
                     db.persist(followerRelationship);
                 } else {
-                    // Ao user1 remover da lista de followers o user2
+                    Follower followerRelationship = result.get(0);
                     db.delete(followerRelationship);
                 }
             } else {
@@ -190,10 +196,9 @@ public class JavaShorts implements Shorts {
             Short shortObj = result.get(0);
 
             db.persist(likes);
-            int nlikes = shortObj.getTotalLikes();
-            shortObj.setTotalLikes(nlikes+1);
+            shortObj.addLike();
             db.update(shortObj);
-//            shortObj.addLike();
+
 
         } else {
 
@@ -205,10 +210,9 @@ public class JavaShorts implements Shorts {
             Short shortObj = result.get(0);
 
             db.delete(likes);
-            int nlikes = shortObj.getTotalLikes();
-            shortObj.setTotalLikes(nlikes-1);
+            shortObj.removeLike();
             db.update(shortObj);
-//            shortObj.removeLike();
+
         }
         return Result.ok();
     }
@@ -267,7 +271,7 @@ public class JavaShorts implements Shorts {
             public int compare(Short o1, Short o2) {
                 long timestamp1 = o1.getTimestamp();
                 long timestamp2 = o2.getTimestamp();
-                return Long.compare(timestamp1, timestamp2);
+                return Long.compare(timestamp2, timestamp1);
             }
         };
 
@@ -275,7 +279,7 @@ public class JavaShorts implements Shorts {
 
         List<String> feedIds = new ArrayList<>();
         for(Short shortObj: feed){
-            feedIds.add(feed.size()-1,shortObj.getShortId());
+            feedIds.add(shortObj.getShortId());
         }
 
         return Result.ok(feedIds);

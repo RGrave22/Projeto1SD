@@ -12,7 +12,6 @@ import tukano.api.User;
 import tukano.api.java.Result;
 import tukano.api.java.Users;
 import tukano.api.rest.RestUsers;
-import tukano.api.java.Result.ErrorCode;
 
 import java.net.URI;
 import java.util.List;
@@ -89,17 +88,8 @@ public class RestUsersClient extends RestClient implements Users {
                     .queryParam(RestUsers.QUERY, pattern)
                     .request()
                     .accept(MediaType.APPLICATION_JSON)
-                    .get(),new GenericType<List<User>>() {});
+                    .get(), new GenericType<List<User>>() {});
     }
-
-//    private Result ctl_followUser(String followerId, String followedId) {
-//        return super.toJavaResult(
-//                target
-//                        .request()
-//                        .accept(MediaType.APPLICATION_JSON)
-//                        .put();
-//        )
-//    }
 
     @Override
     public Result<String> createUser(User user) {
@@ -117,6 +107,7 @@ public class RestUsersClient extends RestClient implements Users {
     }
 
     @Override
+//    public Result<User> deleteUser(String userId, String pwd) {
     public Result<User> deleteUser(String userId, String pwd) {
         return super.reTry( () -> clt_deleteUser(userId, pwd));
     }
@@ -126,22 +117,18 @@ public class RestUsersClient extends RestClient implements Users {
         return super.reTry( () -> clt_searchUsers(pattern));
     }
 
-//    public Result followUser (String followerId, String followedId) {
-//        return super.reTry(() -> ctl_followUser(followerId, followedId));
+
+
+//    public static ErrorCode getErrorCodeFrom(int status) {
+//        return switch (status) {
+//            case 200, 209 -> ErrorCode.OK;
+//            case 409 -> ErrorCode.CONFLICT;
+//            case 403 -> ErrorCode.FORBIDDEN;
+//            case 404 -> ErrorCode.NOT_FOUND;
+//            case 400 -> ErrorCode.BAD_REQUEST;
+//            case 500 -> ErrorCode.INTERNAL_ERROR;
+//            case 501 -> ErrorCode.NOT_IMPLEMENTED;
+//            default -> ErrorCode.INTERNAL_ERROR;
+//        };
 //    }
-
-
-
-    public static ErrorCode getErrorCodeFrom(int status) {
-        return switch (status) {
-            case 200, 209 -> ErrorCode.OK;
-            case 409 -> ErrorCode.CONFLICT;
-            case 403 -> ErrorCode.FORBIDDEN;
-            case 404 -> ErrorCode.NOT_FOUND;
-            case 400 -> ErrorCode.BAD_REQUEST;
-            case 500 -> ErrorCode.INTERNAL_ERROR;
-            case 501 -> ErrorCode.NOT_IMPLEMENTED;
-            default -> ErrorCode.INTERNAL_ERROR;
-        };
-    }
 }

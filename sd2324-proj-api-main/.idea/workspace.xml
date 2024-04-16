@@ -7,10 +7,24 @@
     <list default="true" id="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/hibernate.cfg.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tukano/api/Like.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/api/Likes.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tukano/api/Short.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/api/Short.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shorts.props" beforeDir="false" afterPath="$PROJECT_DIR$/shorts.props" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/api/Blob.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/api/Blob.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/clients/rest/RestUsersClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/clients/rest/RestUsersClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/BlobsGrpc.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/BlobsGrpc.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/BlobsProtoBuf.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/BlobsProtoBuf.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/ShortsGrpc.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/ShortsGrpc.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/ShortsProtoBuf.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/ShortsProtoBuf.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/UsersGrpc.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/UsersGrpc.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/UsersProtoBuf.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/impl/grpc/generated_java/UsersProtoBuf.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/tukano/servers/java/JavaShorts.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/servers/java/JavaShorts.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/servers/rest/RestBlobsResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/servers/rest/RestBlobsResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/servers/rest/RestBlobsServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/servers/rest/RestBlobsServer.java" afterDir="false" />
+    </list>
+    <list id="8e9e9072-5967-4c82-bf81-afc3e371c833" name="Changes by rmcg0" comment="">
+      <change beforePath="$PROJECT_DIR$/src/tukano/api/Blob.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/api/Blob.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/servers/java/JavaShorts.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/servers/java/JavaShorts.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/servers/rest/RestBlobsResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/servers/rest/RestBlobsResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tukano/servers/rest/RestBlobsServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/tukano/servers/rest/RestBlobsServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +42,49 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/src/tukano/api/Blob.java">
+      <ranges>
+        <range start1="2" end1="4" start2="2" end2="2" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="5" end1="15" start2="3" end2="5" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/src/tukano/servers/java/JavaShorts.java">
+      <ranges>
+        <range start1="15" end1="15" start2="15" end2="17" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+        <range start1="30" end1="31" start2="32" end2="38" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="111" end1="112" start2="118" end2="119" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+        <range start1="113" end1="114" start2="120" end2="121" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+        <range start1="121" end1="123" start2="128" end2="128" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+        <range start1="126" end1="128" start2="131" end2="134" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="129" end1="132" start2="135" end2="135" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="134" end1="135" start2="137" end2="138" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="192" end1="194" start2="195" end2="196" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+        <range start1="195" end1="196" start2="197" end2="198" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+        <range start1="207" end1="209" start2="209" end2="210" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+        <range start1="210" end1="211" start2="211" end2="212" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+        <range start1="269" end1="270" start2="270" end2="271" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+        <range start1="277" end1="278" start2="278" end2="279" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/src/tukano/servers/rest/RestBlobsResource.java">
+      <ranges>
+        <range start1="2" end1="3" start2="2" end2="5" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="4" end1="4" start2="6" end2="7" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="5" end1="5" start2="8" end2="9" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="10" end1="11" start2="14" end2="17" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="14" end1="15" start2="20" end2="21" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="19" end1="20" start2="25" end2="26" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+        <range start1="21" end1="21" start2="27" end2="50" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/src/tukano/servers/rest/RestBlobsServer.java">
+      <ranges>
+        <range start1="12" end1="14" start2="12" end2="12" changelist="8369987d-5709-4fb4-b6e4-6ac2acd2ef28" />
+        <range start1="29" end1="30" start2="27" end2="28" changelist="8e9e9072-5967-4c82-bf81-afc3e371c833" />
+      </ranges>
+    </file>
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -39,29 +96,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;21&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/rmcg0/OneDrive/Documentos/GitHub/Projeto1SD/sd2324-proj-api-main&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;database.data.views&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "jdk.selected.JAVA_MODULE": "21",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/UNI/LEI/Projeto1SD/sd2324-proj-api-main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "database.data.views",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;hsqldb&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "hsqldb"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="tukano.clients" />
@@ -104,6 +161,7 @@
       <workItem from="1713021585976" duration="51000" />
       <workItem from="1713022879908" duration="7995000" />
       <workItem from="1713041362053" duration="7140000" />
+      <workItem from="1713189046677" duration="15864000" />
     </task>
     <servers />
   </component>
