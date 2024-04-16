@@ -8,8 +8,11 @@ import tukano.discovery.Discovery;
 import tukano.persistence.Hibernate;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 public class JavaUsers implements Users {
+
+    private static Logger Log = Logger.getLogger(JavaUsers.class.getName());
 
     Hibernate db = Hibernate.getInstance();
     Discovery discovery = Discovery.getInstance();
@@ -36,11 +39,10 @@ public class JavaUsers implements Users {
     @Override
     public Result<User> getUser(String userId, String pwd) {
 
-
         // Check if user exists
         var results = db.sql("SELECT * FROM User u WHERE u.userId LIKE '" + userId + "'", User.class);
 
-        if( results.isEmpty() ) {
+        if(results.isEmpty() ) {
             return Result.error( Result.ErrorCode.NOT_FOUND);
         }
 
@@ -120,33 +122,36 @@ public class JavaUsers implements Users {
             return Result.error( Result.ErrorCode.FORBIDDEN);
         }
 
+//        try {
 
-        Result<List<String>> shortsClient = restShortsServer.getShorts(userId);
+            Result<List<String>> shortsClient = restShortsServer.getShorts(userId);
 
-        if(shortsClient.isOK()) {
-            List<String> shortsList = shortsClient.value();
+            if(shortsClient.error().equals(Result.ErrorCode.OK)) {
 
-            for(String shortId: shortsList) {
-                restShortsServer.deleteShort(shortId, pwd);
+                List<String> shortsList = shortsClient.value();
+
+                for(String shortId: shortsList) {
+                    restShortsServer.deleteShort(shortId, pwd);
+                }
             }
-        }
 
-        Result<List<String>> shortsFollowers = restShortsServer.followers(userId, pwd);
+            Result<List<String>> shortsFollowers = restShortsServer.followers(userId, pwd);
 
-        if(shortsFollowers.isOK()) {
-            List<String> shortsListFollowers = shortsFollowers.value();
+            if(shortsFollowers.isOK()) {
+                List<String> shortsListFollowers = shortsFollowers.value();
 
-            for (String userId2 : shortsListFollowers) {
-                restShortsServer.follow(userId, userId2, false, pwd);
+                for (String userId2 : shortsListFollowers) {
+                    restShortsServer.follow(userId, userId2, false, pwd);
 
-                var resultUser = db.sql("SELECT u.pwd FROM User u WHERE u.userId LIKE '" + userId2 + "'", String.class);
-                String pwd2 = resultUser.get(0);
-                restShortsServer.follow(userId2, userId, false, pwd2);
+                    var resultUser = db.sql("SELECT u.pwd FROM User u WHERE u.userId LIKE '" + userId2 + "'", String.class);
+                    String pwd2 = resultUser.get(0);
+                    restShortsServer.follow(userId2, userId, false, pwd2);
+                }
             }
-        }
 
-        db.delete(user);
-
+//        } finally {
+            db.delete(user);
+//        }
         return Result.ok(user);
     }
 

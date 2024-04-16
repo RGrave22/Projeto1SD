@@ -10,13 +10,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 
 public class JavaBlobs implements Blobs {
 
 
-    private static final String FILE_PATH = "%s\\BlobFiles\\%s.txt";
+    private static final String FILE_PATH = "%s\\BlobFiles\\%s";
 
+    private static Logger Log = Logger.getLogger(JavaBlobs.class.getName());
 
     @Override
     public Result<Void> upload(String blobId, byte[] bytes) {
@@ -25,7 +27,7 @@ public class JavaBlobs implements Blobs {
 
         String projectPath = System.getProperty("user.dir");
         String filePath = String.format(FILE_PATH, projectPath, blobId);
-
+        Log.info("UPLOAD: " + filePath);
 
         if (Files.exists(Paths.get(filePath))) {
             byte[] existingBytes = null;
@@ -53,16 +55,17 @@ public class JavaBlobs implements Blobs {
 
     @Override
     public Result<byte[]> download(String blobId) {
-        if (!blobId.startsWith("SH"))
-            return Result.error(Result.ErrorCode.FORBIDDEN);
+        Log.info("DOWNLOAD: " + blobId);
+    //    if (!blobId.startsWith("SH"))
+    //        return Result.error(Result.ErrorCode.FORBIDDEN);
 
         String projectPath = System.getProperty("user.dir");
         String filePath = String.format(FILE_PATH, projectPath, blobId);
 
-        if (Files.exists(Paths.get(filePath))) {
+        if (Files.exists(Path.of(filePath))) {
             byte[] existingBytes = null;
             try {
-                existingBytes = Files.readAllBytes(Paths.get(filePath));
+                existingBytes = Files.readAllBytes(Path.of(filePath));
                 return Result.ok(existingBytes);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -70,5 +73,20 @@ public class JavaBlobs implements Blobs {
         }else {
             return Result.error(Result.ErrorCode.NOT_FOUND);
         }
+    }
+
+    @Override
+    public Result<Void> delete(String blobId) {
+        String projectPath = System.getProperty("user.dir");
+        String filePath = String.format(FILE_PATH, projectPath, blobId);
+        Log.info("DELETE : " + filePath);
+
+        try {
+            Files.delete(Path.of(filePath));
+            return Result.ok();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

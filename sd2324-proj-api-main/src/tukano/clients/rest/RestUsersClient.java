@@ -117,18 +117,4 @@ public class RestUsersClient extends RestClient implements Users {
         return super.reTry( () -> clt_searchUsers(pattern));
     }
 
-
-
-//    public static ErrorCode getErrorCodeFrom(int status) {
-//        return switch (status) {
-//            case 200, 209 -> ErrorCode.OK;
-//            case 409 -> ErrorCode.CONFLICT;
-//            case 403 -> ErrorCode.FORBIDDEN;
-//            case 404 -> ErrorCode.NOT_FOUND;
-//            case 400 -> ErrorCode.BAD_REQUEST;
-//            case 500 -> ErrorCode.INTERNAL_ERROR;
-//            case 501 -> ErrorCode.NOT_IMPLEMENTED;
-//            default -> ErrorCode.INTERNAL_ERROR;
-//        };
-//    }
 }

@@ -6,13 +6,23 @@ import tukano.api.Short;
 import tukano.api.User;
 import tukano.api.java.Result;
 import tukano.api.java.Shorts;
+import tukano.clients.rest.RestBlobsClient;
 import tukano.clients.rest.RestUsersClient;
 import tukano.discovery.Discovery;
 import tukano.persistence.Hibernate;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JavaShorts implements Shorts {
+
+    private static final String FILE_PATH = "%s\\BlobFiles\\%s";
 
     private static final String BLOB_URL = "%s/blobs/%s?verifier=%s";
 
@@ -20,6 +30,12 @@ public class JavaShorts implements Shorts {
     Discovery discovery = Discovery.getInstance();
     RestUsersClient restUsersServer = new RestUsersClient(discovery.knownUrisOf("users", 1)[0]);
 
+//    Quando hover mais do que um servidor de blobs fazer:
+//    RestBlobsClient[] restBlobsClient = new RestBlobsClient(discovery.knownUrisOf("blobs", 1));
+//    E quando for para dar delete a um short ver no vetor de servidoresde blobs qual o servido correspondente ao blobUrl do short
+    RestBlobsClient restBlobsClient = new RestBlobsClient(discovery.knownUrisOf("blobs", 1)[0]);
+
+    private static Logger Log = Logger.getLogger(JavaShorts.class.getName());
 
 
     @Override
@@ -69,6 +85,17 @@ public class JavaShorts implements Shorts {
             db.delete(like);
         }
 
+        String pattern = "/blobs/(.*?)\\?";
+
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(shortObj.getBlobUrl());
+
+        if (m.find()) {
+            String blobId = m.group(1);
+            Log.info("BLOBID DELETE SHORT: " + blobId);
+            restBlobsClient.delete(blobId);
+        }
+
         db.delete(shortObj);
 
         return Result.ok();
@@ -83,6 +110,7 @@ public class JavaShorts implements Shorts {
         }
 
         Short shortObj = results.get(0);
+
 
         return Result.ok(shortObj);
     }
@@ -102,7 +130,7 @@ public class JavaShorts implements Shorts {
         return Result.error(Result.ErrorCode.NOT_FOUND);
     }
 
-    // PERGUNTAR: Devemos colocar a informacao do follow na BD do server Users ou na do server Shorts
+    // PERGUNTAR: Devemos colocar a informacao dov      follow na BD do server Users ou na do server Shorts
     @Override
     public Result<Void> follow(String userId1, String userId2, boolean isFollowing, String password) {
 
@@ -249,10 +277,11 @@ public class JavaShorts implements Shorts {
     @Override
     public Result<List<String>> getFeed(String userId, String password) {
         Result<User> userResult = restUsersServer.getUser(userId, password);
+        Log.info("GET FEED: " + userResult.toString());
 
-        if(userResult.equals(Result.error(Result.ErrorCode.NOT_FOUND))) {
+        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
-        } else if(userResult.equals(Result.error(Result.ErrorCode.FORBIDDEN))) {
+        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
 

@@ -37,7 +37,6 @@ public class RestShortsServer {
 
             try(var ss = new ServerSocket( PORT )) {
                 var cs = ss.accept();
-                System.err.println("Accepting connections at: " + cs.getLocalSocketAddress());
             }
 
         } catch (Exception e) {
