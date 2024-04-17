@@ -121,18 +121,15 @@ public class RestShortsClient extends RestClient implements Shorts {
     }
 
     private Result<Void> clt_like(String shortId, String userId, boolean isLiked, String password) {
-        JsonObject requestData = new JsonObject();
-        requestData.addProperty("shortId", shortId);
-        requestData.addProperty("userId", userId);
-        requestData.addProperty("isLiked", isLiked);
-        requestData.addProperty("password", password);
 
         return super.toJavaResult(
-                target.path(userId)
+                target.path(shortId)
+                        .path(userId)
+                        .path("/likes")
                         .queryParam(RestShorts.PWD, password)
                         .request()
                         .accept(MediaType.APPLICATION_JSON)
-                        .post(Entity.entity(requestData, MediaType.APPLICATION_JSON)), Void.class);
+                        .post(Entity.entity(isLiked, MediaType.APPLICATION_JSON)), Void.class);
     }
 
     private Result<List<String>> clt_likes(String shortId, String password) {

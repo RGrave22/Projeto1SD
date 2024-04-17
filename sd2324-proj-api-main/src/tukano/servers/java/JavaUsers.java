@@ -149,6 +149,18 @@ public class JavaUsers implements Users {
                 }
             }
 
+            var allUsers = db.sql("SELECT * FROM User u", User.class);
+
+            for(User u: allUsers) {
+                Result<List<String>> shortsFromUserRequest = restShortsServer.getShorts(u.getUserId());
+                List<String> shortsFromUser = shortsFromUserRequest.value();
+                for(String shortId: shortsFromUser) {
+                    restShortsServer.like(shortId, userId, false, pwd);
+                }
+            }
+
+
+
 //        } finally {
             db.delete(user);
 //        }
