@@ -125,4 +125,6 @@ public interface Shorts {
 	 *  FORBIDDEN if the password is incorrect
 	 */
 	Result<List<String>> getFeed(String userId, String password);
+
+	Result<Void> deleteUser(String userId);
 }

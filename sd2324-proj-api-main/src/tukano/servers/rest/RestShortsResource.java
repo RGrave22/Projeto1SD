@@ -65,6 +65,12 @@ public class RestShortsResource implements RestShorts {
         return resultOrThrow( impl.getFeed( userId, password));
     }
 
+    @Override
+    public void deleteUser(String userId) {
+        resultOrThrow( impl.deleteUser( userId ));
+    }
+
+
     /**
      * Given a Result<T>, either returns the value, or throws the JAX-WS Exception
      * matching the error code...

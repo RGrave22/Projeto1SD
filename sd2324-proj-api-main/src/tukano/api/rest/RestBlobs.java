@@ -26,4 +26,8 @@ public interface RestBlobs {
 	@Path("/{" + BLOB_ID+ "}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	void delete(@PathParam(BLOB_ID) String userId);
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	int getNumFiles();
 }

@@ -64,7 +64,7 @@ public class JavaUsers implements Users {
     public Result<User> updateUser(String userId, String pwd, User newUser) {
 
         // Check if the user tries to update the userId, or if userId, or pwd is valid
-        if(newUser.getUserId() != null || userId == null || pwd == null){
+        if(!newUser.getUserId().equals(userId) || userId == null || pwd == null){
             return Result.error( Result.ErrorCode.BAD_REQUEST);
         }
 
@@ -122,48 +122,46 @@ public class JavaUsers implements Users {
             return Result.error( Result.ErrorCode.FORBIDDEN);
         }
 
-//        try {
-
-            Result<List<String>> shortsClient = restShortsServer.getShorts(userId);
-
-            if(shortsClient.error().equals(Result.ErrorCode.OK)) {
-
-                List<String> shortsList = shortsClient.value();
-
-                for(String shortId: shortsList) {
-                    restShortsServer.deleteShort(shortId, pwd);
-                }
-            }
-
-            Result<List<String>> shortsFollowers = restShortsServer.followers(userId, pwd);
-
-            if(shortsFollowers.isOK()) {
-                List<String> shortsListFollowers = shortsFollowers.value();
-
-                for (String userId2 : shortsListFollowers) {
-                    restShortsServer.follow(userId, userId2, false, pwd);
-
-                    var resultUser = db.sql("SELECT u.pwd FROM User u WHERE u.userId LIKE '" + userId2 + "'", String.class);
-                    String pwd2 = resultUser.get(0);
-                    restShortsServer.follow(userId2, userId, false, pwd2);
-                }
-            }
-
-            var allUsers = db.sql("SELECT * FROM User u", User.class);
-
-            for(User u: allUsers) {
-                Result<List<String>> shortsFromUserRequest = restShortsServer.getShorts(u.getUserId());
-                List<String> shortsFromUser = shortsFromUserRequest.value();
-                for(String shortId: shortsFromUser) {
-                    restShortsServer.like(shortId, userId, false, pwd);
-                }
-            }
+        restShortsServer.deleteUser(userId);
 
 
-
-//        } finally {
-            db.delete(user);
+//        Result<List<String>> shortsClient = restShortsServer.getShorts(userId);
+//
+//        if(shortsClient.isOK()) {
+//
+//            List<String> shortsList = shortsClient.value();
+//
+//            for(String shortId: shortsList) {
+//                restShortsServer.deleteShort(shortId, pwd);
+//            }
 //        }
+//
+//        Result<List<String>> shortsFollowers = restShortsServer.followers(userId, pwd);
+//
+//        if(shortsFollowers.isOK()) {
+//            List<String> shortsListFollowers = shortsFollowers.value();
+//
+//            for (String userId2 : shortsListFollowers) {
+//                restShortsServer.follow(userId, userId2, false, pwd);
+//
+//                var resultUser = db.sql("SELECT u.pwd FROM User u WHERE u.userId LIKE '" + userId2 + "'", String.class);
+//                String pwd2 = resultUser.get(0);
+//                restShortsServer.follow(userId2, userId, false, pwd2);
+//            }
+//        }
+//
+//        var allUsers = db.sql("SELECT * FROM User u", User.class);
+//
+//        for(User u: allUsers) {
+//            Result<List<String>> shortsFromUserRequest = restShortsServer.getShorts(u.getUserId());
+//            List<String> shortsFromUser = shortsFromUserRequest.value();
+//            for(String shortId: shortsFromUser) {
+//                restShortsServer.like(shortId, userId, false, pwd);
+//            }
+//        }
+
+        db.delete(user);
+
         return Result.ok(user);
     }
 

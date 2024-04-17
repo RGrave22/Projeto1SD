@@ -1,6 +1,5 @@
 package tukano.clients.rest;
 
-import com.google.gson.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -13,7 +12,6 @@ import tukano.api.java.Result;
 import tukano.api.rest.RestBlobs;
 
 import java.net.URI;
-import java.util.logging.Logger;
 
 public class RestBlobsClient extends RestClient implements Blobs {
 
@@ -23,9 +21,7 @@ public class RestBlobsClient extends RestClient implements Blobs {
     protected static final int MAX_RETRIES = 10;
     protected static final int RETRY_SLEEP = 5000;
 
-    private static Logger Log = Logger.getLogger(RestBlobsClient.class.getName());
-
-
+//    private static Logger Log = Logger.getLogger(RestBlobsClient.class.getName());
 
     final URI serverURI;
     final Client client;
@@ -33,7 +29,7 @@ public class RestBlobsClient extends RestClient implements Blobs {
 
     final WebTarget target;
 
-    public RestBlobsClient( URI serverURI ) {
+    public RestBlobsClient(URI serverURI ) {
         this.serverURI = serverURI;
 
         this.config = new ClientConfig();
@@ -47,7 +43,6 @@ public class RestBlobsClient extends RestClient implements Blobs {
 
         target = client.target( serverURI ).path( RestBlobs.PATH );
     }
-
 
     public Result<Void> clt_upload(String blobId, byte[] bytes) {
         Entity<byte[]> entity = Entity.entity(bytes, MediaType.APPLICATION_OCTET_STREAM);
@@ -76,6 +71,12 @@ public class RestBlobsClient extends RestClient implements Blobs {
                         .delete() , Void.class);
     }
 
+    public Result<Integer> clt_getNumFiles() {
+        return super.toJavaResult(
+                target.request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .get() , Integer.class);
+    }
 
     @Override
     public Result<Void> upload(String blobId, byte[] bytes) {
@@ -91,5 +92,11 @@ public class RestBlobsClient extends RestClient implements Blobs {
     public Result<Void> delete(String blobId) {
         return super.reTry( () -> clt_delete(blobId));
     }
+
+    @Override
+    public Result<Integer> getNumFiles() {
+        return super.reTry( () -> clt_getNumFiles());
+    }
+
 
 }

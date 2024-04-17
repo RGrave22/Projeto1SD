@@ -1,12 +1,6 @@
 package tukano.discovery;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
-import java.net.NetworkInterface;
-import java.net.URI;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,6 +99,21 @@ class DiscoveryImpl implements Discovery {
         }).start();
     }
 
+//    private URI[] uriConnected(List<URI> uriList) {
+//        List<URI> uriConnectedList = new ArrayList<>();
+//        for(URI uri: uriList) {
+//            try {
+//                // Establish a connection to the URI
+//                Socket socket = new Socket();
+//                socket.connect(new InetSocketAddress(uri.getHost(), uri.getPort()), DISCOVERY_ANNOUNCE_PERIOD);
+//                socket.close();
+//                uriConnectedList.add(uri); // Connection successful
+//            } catch (Exception e) {
+//            }
+//        }
+//        return uriConnectedList.toArray(new URI[0]);
+//    }
+
 
     @Override
     public URI[] knownUrisOf(String serviceName, int minEntries) {
@@ -118,6 +127,8 @@ class DiscoveryImpl implements Discovery {
                 throw new RuntimeException(e);
             }
         }
+//        return uriConnected(uriList);
+
         return uriList.toArray(new URI[0]);
     }
 
@@ -141,8 +152,6 @@ class DiscoveryImpl implements Discovery {
                             // TODO: complete by storing the decoded announcements...
                             var serviceName = parts[0];
                             var uri = URI.create(parts[1]);
-                            System.out.print(serviceName + " - ");
-                            System.out.println(uri.toString());
 
                             List<URI> uriList = uriMap.get(serviceName);
                             if(uriList == null) {

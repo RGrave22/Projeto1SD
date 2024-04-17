@@ -9,13 +9,10 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
-import org.hsqldb.persist.Log;
 import tukano.api.Short;
 import tukano.api.java.Result;
 import tukano.api.java.Shorts;
 import tukano.api.rest.RestShorts;
-import tukano.api.rest.RestUsers;
-import tukano.servers.java.JavaUsers;
 
 import java.net.URI;
 import java.util.List;
@@ -55,16 +52,12 @@ public class RestShortsClient extends RestClient implements Shorts {
     }
 
     private Result<Short> clt_createShort(String userId, String password) {
-        JsonObject requestData = new JsonObject();
-        requestData.addProperty("ownerId", userId);
-        requestData.addProperty("password", password);
-
         return super.toJavaResult(
                 target.path(userId)
                         .queryParam(RestShorts.PWD, password)
                         .request()
                         .accept(MediaType.APPLICATION_JSON)
-                        .post(Entity.entity(requestData, MediaType.APPLICATION_JSON)), Short.class);
+                        .post(null), Short.class);
     }
 
     private Result<Void> clt_deleteShort(String shortId, String pwd) {
@@ -94,12 +87,6 @@ public class RestShortsClient extends RestClient implements Shorts {
     }
 
     private Result<Void> clt_follow(String userId1, String userId2, boolean isFollowing, String password) {
-        JsonObject requestData = new JsonObject();
-        requestData.addProperty("ownerId1", userId1);
-        requestData.addProperty("ownerId2", userId2);
-        requestData.addProperty("isFollowing", isFollowing);
-        requestData.addProperty("password", password);
-
         return super.toJavaResult(
                 target.path(userId1)
                         .path(userId2)
@@ -107,7 +94,7 @@ public class RestShortsClient extends RestClient implements Shorts {
                         .queryParam(RestShorts.PWD, password)
                         .request()
                         .accept(MediaType.APPLICATION_JSON)
-                        .post(Entity.entity(requestData, MediaType.APPLICATION_JSON)), Void.class);
+                        .post(Entity.entity(isFollowing, MediaType.APPLICATION_JSON)), Void.class);
     }
 
     private Result<List<String>> clt_followers(String userId, String password) {
@@ -121,7 +108,6 @@ public class RestShortsClient extends RestClient implements Shorts {
     }
 
     private Result<Void> clt_like(String shortId, String userId, boolean isLiked, String password) {
-
         return super.toJavaResult(
                 target.path(shortId)
                         .path(userId)
@@ -149,6 +135,16 @@ public class RestShortsClient extends RestClient implements Shorts {
                         .accept(MediaType.APPLICATION_JSON)
                         .get(), new GenericType<List<String>>() {});
     }
+
+    private Result<Void> clt_deleteUser(String userId) {
+        return super.toJavaResult(
+                target.path(userId)
+                        .path("/shorts")
+                        .request()
+                        .accept(MediaType.APPLICATION_JSON)
+                        .delete(), Void.class );
+    }
+
 
     @Override
     public Result<Short> createShort(String userId, String password) {
@@ -193,5 +189,10 @@ public class RestShortsClient extends RestClient implements Shorts {
     @Override
     public Result<List<String>> getFeed(String userId, String password) {
         return super.reTry( () -> clt_getFeed(userId, password));
+    }
+
+    @Override
+    public Result<Void> deleteUser(String userId) {
+        return super.reTry( () -> clt_deleteUser(userId));
     }
 }

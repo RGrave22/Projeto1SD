@@ -31,6 +31,11 @@ public class RestBlobsResource implements RestBlobs {
         resultOrThrow(impl.delete(blobId));
     }
 
+    @Override
+    public int getNumFiles() {
+        return resultOrThrow(impl.getNumFiles());
+    }
+
     protected <T> T resultOrThrow(Result<T> result) {
         if (result.isOK())
             return result.value();

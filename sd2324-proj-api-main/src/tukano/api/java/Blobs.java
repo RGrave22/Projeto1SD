@@ -35,6 +35,9 @@ public interface Blobs {
 
 	Result<Void> delete(String blobId);
 
+
+	Result<Integer> getNumFiles();
+
 	/**
 	 * Downloads a short video blob resource as a result suitable for streaming
 	 * large-sized byte resources 

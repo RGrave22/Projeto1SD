@@ -6,19 +6,18 @@ import tukano.api.Short;
 import tukano.api.User;
 import tukano.api.java.Result;
 import tukano.api.java.Shorts;
+
 import tukano.clients.rest.RestBlobsClient;
 import tukano.clients.rest.RestUsersClient;
 import tukano.discovery.Discovery;
 import tukano.persistence.Hibernate;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import java.net.URI;
 
 public class JavaShorts implements Shorts {
 
@@ -31,12 +30,35 @@ public class JavaShorts implements Shorts {
     RestUsersClient restUsersServer = new RestUsersClient(discovery.knownUrisOf("users", 1)[0]);
 
 //    Quando hover mais do que um servidor de blobs fazer:
-//    RestBlobsClient[] restBlobsClient = new RestBlobsClient(discovery.knownUrisOf("blobs", 1));
 //    E quando for para dar delete a um short ver no vetor de servidoresde blobs qual o servido correspondente ao blobUrl do short
-    RestBlobsClient restBlobsClient = new RestBlobsClient(discovery.knownUrisOf("blobs", 1)[0]);
+    URI[] blobsUri = discovery.knownUrisOf("blobs", 1);
 
-    private static Logger Log = Logger.getLogger(JavaShorts.class.getName());
 
+//    private static Logger Log = Logger.getLogger(JavaShorts.class.getName());
+
+    private URI getBlobUri() {
+        int minFiles = Integer.MAX_VALUE;
+        URI finalUri = null;
+
+//        Log.info("URI VEC: " + blobsUri.length);
+
+        for (URI uri : blobsUri) {
+//            Log.info("GET BLOB URI: " + uri);
+            RestBlobsClient restBlobsServer = new RestBlobsClient(uri);
+
+            int numFiles = restBlobsServer.getNumFiles().value();
+//            Log.info("NUMBER OF FILES: " + numFiles);
+//            if(numFiles == 0) {
+//                return uri;
+//            }
+
+            if(minFiles > numFiles ){
+                minFiles = numFiles;
+                finalUri = uri;
+            }
+        }
+        return finalUri;
+    }
 
     @Override
     public Result<Short> createShort(String userId, String password) {
@@ -47,7 +69,7 @@ public class JavaShorts implements Shorts {
         String shortId = UUID.randomUUID().toString();
         String ownerId = user.getUserId();
 
-        String blobUri = String.valueOf(discovery.knownUrisOf("blobs", 1)[0]);
+        URI blobUri = getBlobUri();
         String blobId = "SH" + UUID.randomUUID();
         String verificationToken = UUID.randomUUID().toString();
 
@@ -74,9 +96,9 @@ public class JavaShorts implements Shorts {
         // Obtem o user, se existir, verificando se a pwd esta correta
         Result<User> userResult = restUsersServer.getUser(userId, password);
 
-        if(userResult.equals(Result.error(Result.ErrorCode.NOT_FOUND))) {
+        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
-        } else if(userResult.equals(Result.error(Result.ErrorCode.FORBIDDEN))) {
+        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
 
@@ -90,9 +112,13 @@ public class JavaShorts implements Shorts {
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(shortObj.getBlobUrl());
 
+        URI blobUri = URI.create(shortObj.getBlobUrl().split("/blobs")[0]);
+//        Log.info("BLOB URI: " + blobUri);
+        RestBlobsClient restBlobsClient = new RestBlobsClient(blobUri);
+
         if (m.find()) {
             String blobId = m.group(1);
-            Log.info("BLOBID DELETE SHORT: " + blobId);
+//            Log.info("BLOBID DELETE SHORT: " + blobId);
             restBlobsClient.delete(blobId);
         }
 
@@ -110,7 +136,6 @@ public class JavaShorts implements Shorts {
         }
 
         Short shortObj = results.get(0);
-
 
         return Result.ok(shortObj);
     }
@@ -137,9 +162,9 @@ public class JavaShorts implements Shorts {
         // Obtem o user, se existir, verificando se a pwd esta correta
         Result<User> userResult = restUsersServer.getUser(userId1, password);
 
-        if(userResult.equals(Result.error(Result.ErrorCode.NOT_FOUND))) {
+        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
-        } else if(userResult.equals(Result.error(Result.ErrorCode.FORBIDDEN))) {
+        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
 
@@ -183,9 +208,9 @@ public class JavaShorts implements Shorts {
         // Obtem o user, se existir, verificando se a psw esta correta
         Result<User> userResult = restUsersServer.getUser(userId, password);
 
-        if(userResult.equals(Result.error(Result.ErrorCode.NOT_FOUND))) {
+        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
-        } else if(userResult.equals(Result.error(Result.ErrorCode.FORBIDDEN))) {
+        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
 
@@ -205,9 +230,9 @@ public class JavaShorts implements Shorts {
 
         Result<User> userResult = restUsersServer.getUser(userId, password);
 
-        if(userResult.equals(Result.error(Result.ErrorCode.NOT_FOUND))) {
+        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
-        } else if(userResult.equals(Result.error(Result.ErrorCode.FORBIDDEN))) {
+        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
 
@@ -257,9 +282,9 @@ public class JavaShorts implements Shorts {
         String userId = shortObj.getOwnerId();
 
         Result<User> userResult = restUsersServer.getUser(userId, password);
-        if(userResult.equals(Result.error(Result.ErrorCode.NOT_FOUND))) {
+        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
-        } else if(userResult.equals(Result.error(Result.ErrorCode.FORBIDDEN))) {
+        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
             return Result.error(Result.ErrorCode.FORBIDDEN);
         }
 
@@ -277,7 +302,7 @@ public class JavaShorts implements Shorts {
     @Override
     public Result<List<String>> getFeed(String userId, String password) {
         Result<User> userResult = restUsersServer.getUser(userId, password);
-        Log.info("GET FEED: " + userResult.toString());
+//        Log.info("GET FEED: " + userResult.toString());
 
         if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
@@ -314,10 +339,35 @@ public class JavaShorts implements Shorts {
         return Result.ok(feedIds);
     }
 
+    @Override
+    public Result<Void> deleteUser(String userId) {
 
+        var shortsToDelete = db.sql("SELECT * FROM Short s WHERE s.ownerId LIKE '" + userId + "'", Short.class);
 
+        if(!shortsToDelete.isEmpty()) {
+            db.delete(shortsToDelete);
+        }
 
+        var unfollowFollowers = db.sql("SELECT * FROM Follower f WHERE f.followed LIKE '" + userId + "'", Follower.class);
 
+        if(!unfollowFollowers.isEmpty()) {
+            db.delete(unfollowFollowers);
+        }
+
+        var followersUnfollow = db.sql("SELECT * FROM Follower f WHERE f.follower LIKE '" + userId + "'", Follower.class);
+
+        if(!followersUnfollow.isEmpty()) {
+            db.delete(followersUnfollow);
+        }
+
+        var likesToRemove = db.sql("SELECT * FROM Likes l WHERE l.userId LIKE '" + userId + "'", Likes.class);
+
+        if(!likesToRemove.isEmpty()) {
+            db.delete(likesToRemove);
+        }
+
+        return Result.ok();
+    }
 
 
 }

@@ -6,6 +6,7 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import tukano.api.User;
@@ -52,6 +53,7 @@ public class RestUsersClient extends RestClient implements Users {
                         .accept(MediaType.APPLICATION_JSON)
                         .post(Entity.entity(user, MediaType.APPLICATION_JSON)), String.class );
     }
+
 
     private Result<User> clt_getUser(String userId, String pwd) {
         return super.toJavaResult(
