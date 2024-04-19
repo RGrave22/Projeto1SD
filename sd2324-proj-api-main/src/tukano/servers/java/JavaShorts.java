@@ -27,6 +27,8 @@ public class JavaShorts implements Shorts {
 
     private static final String BLOB_URL = "%s/blobs/%s?verifier=%s";
 
+    int lastUsed;
+
     Hibernate db = Hibernate.getInstance();
 //    Discovery discovery = Discovery.getInstance();
 //    Users usersClient = ClientFactory.getUsers();
@@ -38,31 +40,86 @@ public class JavaShorts implements Shorts {
     private static Logger Log = Logger.getLogger(JavaShorts.class.getName());
 
     private URI getBlobUri() {
+
 //        Log.info("GETBLOBURI");
         URI[] blobsUri = Discovery.getInstance().knownUrisOf("blobs", 1);
-//        Log.info("BLOBSURI : " + blobsUri.length);
+        Log.info("BLOBSURI : " + blobsUri.length);
 
         int minFiles = Integer.MAX_VALUE;
         URI finalUri = null;
 
-//        Log.info("URI VEC: " + blobsUri.length);
+        Log.info("URI VEC: " + blobsUri.length);
 
+        List<URI> diffUris = new ArrayList<>();
         for (URI uri : blobsUri) {
-//            Log.info("GET BLOB URI: " + uri);
+            if(!diffUris.contains(uri)){
+                diffUris.add(uri);
+
+            }
+        }
+
+        for (URI uri : diffUris) {
+            Log.info("GET BLOB URI: " + uri);
             Blobs blobsClient = ClientFactory.getBlob(uri);
-//            Log.info("BLOBCLIENT");
+            Log.info("BLOBCLIENT");
             int numFiles = blobsClient.getNumFiles().value();
-//            Log.info("NUMBER OF FILES: " + numFiles);
-//            if(numFiles == 0) {
-//                return uri;
-//            }
+            Log.info("NUMBER OF FILES: " + numFiles);
+            if(numFiles == 0) {
+                return uri;
+            }
 
             if(minFiles > numFiles ){
                 minFiles = numFiles;
                 finalUri = uri;
             }
         }
+
         return finalUri;
+
+////        int lastUsed = -1;
+//        Random random = new Random();
+//        int randomGetted = -1;
+//
+//        do{
+//          //  randomGetted = random.nextInt(diffUris.size());
+//            randomGetted = (int) (Math.random() * diffUris.size());
+//
+//        }while(randomGetted == lastUsed);
+//
+////        while(randomGetted == lastUsed) {
+////            randomGetted = random.nextInt(diffUris.size());
+////        }
+//
+//
+//        URI finalUri = diffUris.get(randomGetted);
+//        lastUsed = randomGetted;
+//        Log.info("RANDOM : " + lastUsed);
+//
+//        Log.info("RANDOM URI: " + diffUris.size());
+//
+//
+//        return finalUri;
+
+//        Log.info("LAST USED : " + lastUsed);
+//        List<URI> diffUris = new ArrayList<>();
+//        for (URI uri : blobsUri) {
+//            if (!diffUris.contains(uri)) {
+//                diffUris.add(uri);
+//            }
+//        }
+//
+//        int nextIndex;
+//
+//        if (lastUsed == -1 || lastUsed == diffUris.size() - 1) {
+//            nextIndex = 0;
+//        } else {
+//            nextIndex = lastUsed + 1;
+//        }
+//
+//        URI finalUri = diffUris.get(nextIndex);
+//        lastUsed = nextIndex;
+//
+//        return finalUri;
     }
 
     @Override
