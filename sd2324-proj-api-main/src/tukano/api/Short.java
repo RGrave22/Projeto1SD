@@ -2,6 +2,9 @@ package tukano.api;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import tukano.servers.java.JavaShorts;
+
+import java.util.logging.Logger;
 
 
 /**
@@ -22,6 +25,8 @@ public class Short {
 	String blobUrl;
 	long timestamp;
 	int totalLikes;
+
+	private static Logger Log = Logger.getLogger(JavaShorts.class.getName());
 
 	public Short() {}
 	

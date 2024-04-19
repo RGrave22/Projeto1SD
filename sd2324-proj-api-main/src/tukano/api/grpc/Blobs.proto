@@ -8,6 +8,10 @@ service Blobs {
 	rpc upload( UploadArgs ) returns (UploadResult) {}
 
 	rpc download( DownloadArgs ) returns (stream DownloadResult) {}
+
+	rpc delete ( DeleteArgs ) returns (DeleteResult) {}
+
+	rpc getNumFiles ( GetNumFilesArgs) returns (GetNumFilesResult) {}
 	
 }
 
@@ -26,3 +30,18 @@ message DownloadArgs {
 message DownloadResult {
 	bytes chunk = 1;
 }
+
+message DeleteArgs {
+	string blobId = 1;
+}
+
+message DeleteResult {
+}
+
+message GetNumFilesArgs {
+}
+
+message GetNumFilesResult {
+	int32 numfiles = 1;
+}
+

@@ -23,6 +23,8 @@ service Shorts {
 	rpc likes( LikesArgs ) returns (LikesResult);
 
 	rpc getFeed( GetFeedArgs) returns (GetFeedResult);
+
+	rpc deleteUser( DeleteUserArgs ) returns (DeleteUserResult);
 }
 
 message GrpcShort {
@@ -111,4 +113,11 @@ message GetFeedArgs {
 
 message GetFeedResult {
 	repeated string shortId = 1;
+}
+
+message DeleteUserArgs {
+	string userId = 1;
+}
+
+message DeleteUserResult {
 }

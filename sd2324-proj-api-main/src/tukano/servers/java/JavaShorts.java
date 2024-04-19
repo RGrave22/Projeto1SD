@@ -4,14 +4,16 @@ import tukano.api.Follower;
 import tukano.api.Likes;
 import tukano.api.Short;
 import tukano.api.User;
+import tukano.api.java.Blobs;
 import tukano.api.java.Result;
 import tukano.api.java.Shorts;
 
-import tukano.clients.rest.RestBlobsClient;
-import tukano.clients.rest.RestUsersClient;
+import tukano.api.java.Users;
 import tukano.discovery.Discovery;
 import tukano.persistence.Hibernate;
+import tukano.servers.ClientFactory;
 
+import java.io.Console;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -26,17 +28,20 @@ public class JavaShorts implements Shorts {
     private static final String BLOB_URL = "%s/blobs/%s?verifier=%s";
 
     Hibernate db = Hibernate.getInstance();
-    Discovery discovery = Discovery.getInstance();
-    RestUsersClient restUsersServer = new RestUsersClient(discovery.knownUrisOf("users", 1)[0]);
+//    Discovery discovery = Discovery.getInstance();
+//    Users usersClient = ClientFactory.getUsers();
 
 //    Quando hover mais do que um servidor de blobs fazer:
 //    E quando for para dar delete a um short ver no vetor de servidoresde blobs qual o servido correspondente ao blobUrl do short
-    URI[] blobsUri = discovery.knownUrisOf("blobs", 1);
 
 
-//    private static Logger Log = Logger.getLogger(JavaShorts.class.getName());
+    private static Logger Log = Logger.getLogger(JavaShorts.class.getName());
 
     private URI getBlobUri() {
+//        Log.info("GETBLOBURI");
+        URI[] blobsUri = Discovery.getInstance().knownUrisOf("blobs", 1);
+//        Log.info("BLOBSURI : " + blobsUri.length);
+
         int minFiles = Integer.MAX_VALUE;
         URI finalUri = null;
 
@@ -44,9 +49,9 @@ public class JavaShorts implements Shorts {
 
         for (URI uri : blobsUri) {
 //            Log.info("GET BLOB URI: " + uri);
-            RestBlobsClient restBlobsServer = new RestBlobsClient(uri);
-
-            int numFiles = restBlobsServer.getNumFiles().value();
+            Blobs blobsClient = ClientFactory.getBlob(uri);
+//            Log.info("BLOBCLIENT");
+            int numFiles = blobsClient.getNumFiles().value();
 //            Log.info("NUMBER OF FILES: " + numFiles);
 //            if(numFiles == 0) {
 //                return uri;
@@ -63,11 +68,17 @@ public class JavaShorts implements Shorts {
     @Override
     public Result<Short> createShort(String userId, String password) {
 
-        Result<User> userRes = restUsersServer.getUser(userId, password);
+        Result<User> userRes = ClientFactory.getUsers().getUser(userId, password);
+
+        if(userRes.error().equals(Result.ErrorCode.NOT_FOUND)) {
+            return Result.error(Result.ErrorCode.NOT_FOUND);
+        } else if(userRes.error().equals(Result.ErrorCode.FORBIDDEN)) {
+            return Result.error(Result.ErrorCode.FORBIDDEN);
+        }
+
         User user = userRes.value();
 
         String shortId = UUID.randomUUID().toString();
-        String ownerId = user.getUserId();
 
         URI blobUri = getBlobUri();
         String blobId = "SH" + UUID.randomUUID();
@@ -75,9 +86,12 @@ public class JavaShorts implements Shorts {
 
         String blobUrl = String.format(BLOB_URL, blobUri, blobId, verificationToken);
 
-        Short shortObj = new Short(shortId, ownerId, blobUrl);
+        Short shortObj = new Short(shortId, userId, blobUrl);
 
+        Log.info("USERID BEFORE: " + shortObj.getOwnerId());
         db.persist(shortObj);
+
+        Log.info("USERID AFTER: " + shortObj.getOwnerId());
 
         return Result.ok(shortObj);
     }
@@ -94,7 +108,7 @@ public class JavaShorts implements Shorts {
         String userId = shortObj.getOwnerId();
 
         // Obtem o user, se existir, verificando se a pwd esta correta
-        Result<User> userResult = restUsersServer.getUser(userId, password);
+        Result<User> userResult = ClientFactory.getUsers().getUser(userId, password);
 
         if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
@@ -114,12 +128,13 @@ public class JavaShorts implements Shorts {
 
         URI blobUri = URI.create(shortObj.getBlobUrl().split("/blobs")[0]);
 //        Log.info("BLOB URI: " + blobUri);
-        RestBlobsClient restBlobsClient = new RestBlobsClient(blobUri);
+
+//        Blobs blobsClient = ClientFactory.getBlob(blobUri);
 
         if (m.find()) {
             String blobId = m.group(1);
 //            Log.info("BLOBID DELETE SHORT: " + blobId);
-            restBlobsClient.delete(blobId);
+            ClientFactory.getBlob(blobUri).delete(blobId);
         }
 
         db.delete(shortObj);
@@ -142,7 +157,7 @@ public class JavaShorts implements Shorts {
 
     @Override
     public Result<List<String>> getShorts(String userId) {
-        Result<List<User>> usersListResult = restUsersServer.searchUsers(userId);
+        Result<List<User>> usersListResult = ClientFactory.getUsers().searchUsers(userId);
         List<User> usersList = usersListResult.value();
 
         // Se nenhum user tiver o userId igual ao userId2 return NOT_FOUND
@@ -160,7 +175,7 @@ public class JavaShorts implements Shorts {
     public Result<Void> follow(String userId1, String userId2, boolean isFollowing, String password) {
 
         // Obtem o user, se existir, verificando se a pwd esta correta
-        Result<User> userResult = restUsersServer.getUser(userId1, password);
+        Result<User> userResult = ClientFactory.getUsers().getUser(userId1, password);
 
         if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
@@ -179,7 +194,7 @@ public class JavaShorts implements Shorts {
         }
 
         // Obtem todos os users que tenham uma pattern igual a userId2
-        Result<List<User>> usersListResult = restUsersServer.searchUsers(userId2);
+        Result<List<User>> usersListResult = ClientFactory.getUsers().searchUsers(userId2);
         List<User> usersList = usersListResult.value();
 
         // Se nenhum user tiver o userId igual ao userId2 return NOT_FOUND
@@ -206,7 +221,7 @@ public class JavaShorts implements Shorts {
     public Result<List<String>> followers(String userId, String password) {
 
         // Obtem o user, se existir, verificando se a psw esta correta
-        Result<User> userResult = restUsersServer.getUser(userId, password);
+        Result<User> userResult = ClientFactory.getUsers().getUser(userId, password);
 
         if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
@@ -228,7 +243,7 @@ public class JavaShorts implements Shorts {
             return Result.error(Result.ErrorCode.NOT_FOUND);
         }
 
-        Result<User> userResult = restUsersServer.getUser(userId, password);
+        Result<User> userResult = ClientFactory.getUsers().getUser(userId, password);
 
         if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
@@ -240,7 +255,6 @@ public class JavaShorts implements Shorts {
         var result2 = db.sql("SELECT * FROM Likes l WHERE l.userId LIKE '" + userId + "' AND l.shortId LIKE '" + shortId + "'", Likes.class);
 
         if(isLiked){
-
             if(!result2.isEmpty()) {
                 return Result.error(Result.ErrorCode.CONFLICT);
             }
@@ -251,10 +265,7 @@ public class JavaShorts implements Shorts {
             db.persist(likes);
             shortObj.addLike();
             db.update(shortObj);
-
-
         } else {
-
             if (result2.isEmpty()) {
                 return Result.error(Result.ErrorCode.NOT_FOUND);
             }
@@ -265,7 +276,6 @@ public class JavaShorts implements Shorts {
             db.delete(likes);
             shortObj.removeLike();
             db.update(shortObj);
-
         }
         return Result.ok();
     }
@@ -281,7 +291,7 @@ public class JavaShorts implements Shorts {
         Short shortObj = result.get(0);
         String userId = shortObj.getOwnerId();
 
-        Result<User> userResult = restUsersServer.getUser(userId, password);
+        Result<User> userResult = ClientFactory.getUsers().getUser(userId, password);
         if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
         } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
@@ -301,7 +311,7 @@ public class JavaShorts implements Shorts {
 
     @Override
     public Result<List<String>> getFeed(String userId, String password) {
-        Result<User> userResult = restUsersServer.getUser(userId, password);
+        Result<User> userResult = ClientFactory.getUsers().getUser(userId, password);
 //        Log.info("GET FEED: " + userResult.toString());
 
         if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
@@ -311,6 +321,7 @@ public class JavaShorts implements Shorts {
         }
 
         var followedUsers = db.sql("SELECT f.followed FROM Follower f WHERE f.follower LIKE '" + userId + "'", String.class);
+
         //o proprio user tambem faz parte do feed
         followedUsers.add(userId);
 
@@ -341,33 +352,45 @@ public class JavaShorts implements Shorts {
 
     @Override
     public Result<Void> deleteUser(String userId) {
-
         var shortsToDelete = db.sql("SELECT * FROM Short s WHERE s.ownerId LIKE '" + userId + "'", Short.class);
 
         if(!shortsToDelete.isEmpty()) {
-            db.delete(shortsToDelete);
+            for(Short shortObj: shortsToDelete) {
+                String pattern = "/blobs/(.*?)\\?";
+                Pattern r = Pattern.compile(pattern);
+                Matcher m = r.matcher(shortObj.getBlobUrl());
+
+                URI blobUri = URI.create(shortObj.getBlobUrl().split("/blobs")[0]);
+                if (m.find()) {
+                    String blobId = m.group(1);
+                    ClientFactory.getBlob(blobUri).delete(blobId);
+                }
+                db.delete(shortObj);
+            }
         }
 
-        var unfollowFollowers = db.sql("SELECT * FROM Follower f WHERE f.followed LIKE '" + userId + "'", Follower.class);
+        var followsToRemove = db.sql("SELECT * FROM Follower f WHERE f.followed LIKE '" + userId + "' OR f.follower LIKE '" + userId + "'", Follower.class);
 
-        if(!unfollowFollowers.isEmpty()) {
-            db.delete(unfollowFollowers);
-        }
-
-        var followersUnfollow = db.sql("SELECT * FROM Follower f WHERE f.follower LIKE '" + userId + "'", Follower.class);
-
-        if(!followersUnfollow.isEmpty()) {
-            db.delete(followersUnfollow);
+        if(!followsToRemove.isEmpty()) {
+            for(Follower followerObj: followsToRemove) {
+                db.delete(followerObj);
+            }
         }
 
         var likesToRemove = db.sql("SELECT * FROM Likes l WHERE l.userId LIKE '" + userId + "'", Likes.class);
 
         if(!likesToRemove.isEmpty()) {
-            db.delete(likesToRemove);
+            for(Likes likeObj: likesToRemove) {
+                var shortObj = db.sql("SELECT * FROM Short s WHERE s.shortId LIKE '" + likeObj.getShortId() + "'", Short.class);
+                if(!shortObj.isEmpty()) {
+                    Short sh = shortObj.get(0);
+                    sh.removeLike();
+                    db.update(sh);
+                    db.delete(likeObj);
+                }
+            }
         }
 
         return Result.ok();
     }
-
-
 }

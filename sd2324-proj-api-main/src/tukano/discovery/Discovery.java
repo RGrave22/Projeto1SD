@@ -1,10 +1,7 @@
 package tukano.discovery;
 
 import java.net.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -99,25 +96,11 @@ class DiscoveryImpl implements Discovery {
         }).start();
     }
 
-//    private URI[] uriConnected(List<URI> uriList) {
-//        List<URI> uriConnectedList = new ArrayList<>();
-//        for(URI uri: uriList) {
-//            try {
-//                // Establish a connection to the URI
-//                Socket socket = new Socket();
-//                socket.connect(new InetSocketAddress(uri.getHost(), uri.getPort()), DISCOVERY_ANNOUNCE_PERIOD);
-//                socket.close();
-//                uriConnectedList.add(uri); // Connection successful
-//            } catch (Exception e) {
-//            }
-//        }
-//        return uriConnectedList.toArray(new URI[0]);
-//    }
-
-
     @Override
     public URI[] knownUrisOf(String serviceName, int minEntries) {
         List<URI> uriList = uriMap.get(serviceName);
+        Log.info("URIS FOR SERVICE: " + serviceName);
+        Log.info("URI MAP KEYS: " + Arrays.toString(uriMap.keySet().toArray()));
 
         while (uriList == null || uriList.size() < minEntries) {
             try {
@@ -127,7 +110,6 @@ class DiscoveryImpl implements Discovery {
                 throw new RuntimeException(e);
             }
         }
-//        return uriConnected(uriList);
 
         return uriList.toArray(new URI[0]);
     }

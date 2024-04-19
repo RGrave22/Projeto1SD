@@ -1,0 +1,102 @@
+package tukano.clients.grpc;
+
+import com.google.protobuf.ByteString;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import org.hibernate.sql.Delete;
+import tukano.api.java.Blobs;
+import tukano.api.java.Result;
+import tukano.impl.grpc.generated_java.BlobsGrpc;
+import tukano.impl.grpc.generated_java.BlobsProtoBuf.*;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
+import static tukano.api.java.Result.error;
+import static tukano.api.java.Result.ok;
+
+public class GrpcBlobsClient implements Blobs {
+
+    private static final long GRPC_REQUEST_TIMEOUT = 10000;
+    final BlobsGrpc.BlobsBlockingStub stub;
+
+    public GrpcBlobsClient(URI serverURI) {
+        var channel = ManagedChannelBuilder.forAddress(serverURI.getHost(), serverURI.getPort()).usePlaintext().build();
+        stub = BlobsGrpc.newBlockingStub( channel ).withDeadlineAfter(GRPC_REQUEST_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    public Result<Void> upload(String blobId, byte[] bytes) {
+        return toJavaResult(() -> {
+            var res = stub.upload(UploadArgs.newBuilder()
+                    .setBlobId(blobId)
+                    .setData(ByteString.copyFrom(bytes))
+                    .build());
+            return null;
+        });
+    }
+
+    @Override
+    public Result<byte[]> download(String blobId) {
+        return toJavaResult(() -> {
+            var res = stub.download(DownloadArgs.newBuilder()
+                    .setBlobId(blobId)
+                    .build());
+
+            List<ByteString> byteStringList = new ArrayList<>();
+            while (res.hasNext()) {
+                byteStringList.add(res.next().getChunk());
+            }
+            ByteString concatenatedByteString = ByteString.copyFrom(byteStringList);
+
+            return concatenatedByteString.toByteArray();
+        });
+    }
+
+    @Override
+    public Result<Void> delete(String blobId) {
+        return toJavaResult(() -> {
+            var res = stub.delete(DeleteArgs.newBuilder()
+                    .setBlobId(blobId)
+                    .build());
+
+            return null;
+        });
+    }
+
+    @Override
+    public Result<Integer> getNumFiles() {
+        return toJavaResult(() -> {
+            var res = stub.getNumFiles(GetNumFilesArgs.newBuilder()
+                    .build());
+            return res.getNumfiles();
+        });
+    }
+
+    static <T> Result<T> toJavaResult(Supplier<T> func) {
+        try {
+            return ok(func.get());
+        } catch(StatusRuntimeException sre) {
+            var code = sre.getStatus().getCode();
+            if( code == Status.Code.UNAVAILABLE || code == Status.Code.DEADLINE_EXCEEDED )
+                throw sre;
+            return error( statusToErrorCode( sre.getStatus() ) );
+        }
+    }
+
+    static Result.ErrorCode statusToErrorCode(Status status ) {
+        return switch( status.getCode() ) {
+            case OK -> Result.ErrorCode.OK;
+            case NOT_FOUND -> Result.ErrorCode.NOT_FOUND;
+            case ALREADY_EXISTS -> Result.ErrorCode.CONFLICT;
+            case PERMISSION_DENIED -> Result.ErrorCode.FORBIDDEN;
+            case INVALID_ARGUMENT -> Result.ErrorCode.BAD_REQUEST;
+            case UNIMPLEMENTED -> Result.ErrorCode.NOT_IMPLEMENTED;
+            default -> Result.ErrorCode.INTERNAL_ERROR;
+        };
+    }
+}
