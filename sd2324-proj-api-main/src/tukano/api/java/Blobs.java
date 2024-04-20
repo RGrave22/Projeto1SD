@@ -32,10 +32,19 @@ public interface Blobs {
 	 */
 	Result<byte[]> download(String blobId);
 
-
+	/**
+	 * Delete the short video blob resource.
+	 *
+	 * @param blobId the id of the blob;
+	 * @return (OK, void)
+	 */
 	Result<Void> delete(String blobId);
 
-
+	/**
+	 * Get the number of short video blob resource in the blobs server.
+	 *
+	 * @return (OK, int)
+	 */
 	Result<Integer> getNumFiles();
 
 	/**

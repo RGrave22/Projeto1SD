@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 import static tukano.api.java.Result.error;
 import static tukano.api.java.Result.ok;
@@ -27,8 +26,6 @@ public class GrpcUsersClient implements Users {
     private static final long GRPC_REQUEST_TIMEOUT = 10000;
     final UsersGrpc.UsersBlockingStub stub;
 
-    private static Logger Log = Logger.getLogger(GrpcUsersClient.class.getName());
-
     public GrpcUsersClient(URI serverURI) {
         var channel = ManagedChannelBuilder.forAddress(serverURI.getHost(), serverURI.getPort()).usePlaintext().build();
         stub = UsersGrpc.newBlockingStub( channel ).withDeadlineAfter(GRPC_REQUEST_TIMEOUT, TimeUnit.MILLISECONDS);
@@ -36,7 +33,6 @@ public class GrpcUsersClient implements Users {
 
     @Override
     public Result<String> createUser(User user) {
-//        Log.info("CREATEUSER");
         return toJavaResult(() -> {
             var res = stub.createUser(CreateUserArgs.newBuilder()
                     .setUser(User_to_GrpcUser(user))
@@ -70,7 +66,6 @@ public class GrpcUsersClient implements Users {
 
     @Override
     public Result<User> deleteUser(String userId, String pwd) {
-//        Log.info("GRPCUSERSCLIENT");
         return toJavaResult(() -> {
             var res = stub.deleteUser(DeleteUserArgs.newBuilder()
                     .setUserId(userId)

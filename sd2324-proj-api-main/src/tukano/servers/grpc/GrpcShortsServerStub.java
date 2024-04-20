@@ -9,9 +9,6 @@ import tukano.impl.grpc.generated_java.ShortsGrpc;
 import tukano.impl.grpc.generated_java.ShortsProtoBuf.*;
 import tukano.servers.java.JavaShorts;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static tukano.impl.grpc.common.DataModelAdaptor.Short_to_GrpcShort;
 
 public class GrpcShortsServerStub implements ShortsGrpc.AsyncService, BindableService {

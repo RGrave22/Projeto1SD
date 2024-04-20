@@ -1,6 +1,5 @@
 package tukano.clients.rest;
 
-import com.google.gson.JsonObject;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -16,18 +15,11 @@ import tukano.api.rest.RestShorts;
 
 import java.net.URI;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class RestShortsClient extends RestClient implements Shorts {
 
     protected static final int READ_TIMEOUT = 10000;
     protected static final int CONNECT_TIMEOUT = 10000;
-
-    protected static final int MAX_RETRIES = 10;
-    protected static final int RETRY_SLEEP = 5000;
-
-//    private static Logger Log = Logger.getLogger(RestShortsClient.class.getName());
-
 
 
     final URI serverURI;
@@ -80,7 +72,7 @@ public class RestShortsClient extends RestClient implements Shorts {
     private Result<List<String>> clt_getShorts(String userId) {
         return super.toJavaResult(
                 target.path(userId)
-                        .path("/shorts")
+                        .path(RestShorts.SHORTS)
                         .request()
                         .accept(MediaType.APPLICATION_JSON)
                         .get(), new GenericType<List<String>>() {});
@@ -90,7 +82,7 @@ public class RestShortsClient extends RestClient implements Shorts {
         return super.toJavaResult(
                 target.path(userId1)
                         .path(userId2)
-                        .path("/followers")
+                        .path(RestShorts.FOLLOWERS)
                         .queryParam(RestShorts.PWD, password)
                         .request()
                         .accept(MediaType.APPLICATION_JSON)
@@ -100,7 +92,7 @@ public class RestShortsClient extends RestClient implements Shorts {
     private Result<List<String>> clt_followers(String userId, String password) {
         return super.toJavaResult(
                 target.path(userId)
-                        .path("/followers")
+                        .path(RestShorts.FOLLOWERS)
                         .queryParam(RestShorts.PWD, password)
                         .request()
                         .accept(MediaType.APPLICATION_JSON)
@@ -111,7 +103,7 @@ public class RestShortsClient extends RestClient implements Shorts {
         return super.toJavaResult(
                 target.path(shortId)
                         .path(userId)
-                        .path("/likes")
+                        .path(RestShorts.LIKES)
                         .queryParam(RestShorts.PWD, password)
                         .request()
                         .accept(MediaType.APPLICATION_JSON)
@@ -139,7 +131,7 @@ public class RestShortsClient extends RestClient implements Shorts {
     private Result<Void> clt_deleteUser(String userId) {
         return super.toJavaResult(
                 target.path(userId)
-                        .path("/shorts")
+                        .path(RestShorts.SHORTS)
                         .request()
                         .accept(MediaType.APPLICATION_JSON)
                         .delete(), Void.class );

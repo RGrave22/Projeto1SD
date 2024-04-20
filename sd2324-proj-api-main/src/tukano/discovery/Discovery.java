@@ -99,8 +99,6 @@ class DiscoveryImpl implements Discovery {
     @Override
     public URI[] knownUrisOf(String serviceName, int minEntries) {
         List<URI> uriList = uriMap.get(serviceName);
-        Log.info("URIS FOR SERVICE: " + serviceName);
-        Log.info("URI MAP KEYS: " + Arrays.toString(uriMap.keySet().toArray()));
 
         while (uriList == null || uriList.size() < minEntries) {
             try {
@@ -131,7 +129,6 @@ class DiscoveryImpl implements Discovery {
 
                         var parts = msg.split(DELIMITER);
                         if (parts.length == 2) {
-                            // TODO: complete by storing the decoded announcements...
                             var serviceName = parts[0];
                             var uri = URI.create(parts[1]);
 

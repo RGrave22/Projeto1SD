@@ -18,11 +18,6 @@ public class RestBlobsClient extends RestClient implements Blobs {
     protected static final int READ_TIMEOUT = 10000;
     protected static final int CONNECT_TIMEOUT = 10000;
 
-    protected static final int MAX_RETRIES = 10;
-    protected static final int RETRY_SLEEP = 5000;
-
-//    private static Logger Log = Logger.getLogger(RestBlobsClient.class.getName());
-
     final URI serverURI;
     final Client client;
     final ClientConfig config;
@@ -95,7 +90,7 @@ public class RestBlobsClient extends RestClient implements Blobs {
 
     @Override
     public Result<Integer> getNumFiles() {
-        return super.reTry( () -> clt_getNumFiles());
+        return super.reTry(this::clt_getNumFiles);
     }
 
 

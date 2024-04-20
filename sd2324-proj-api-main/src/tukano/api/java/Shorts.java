@@ -126,5 +126,11 @@ public interface Shorts {
 	 */
 	Result<List<String>> getFeed(String userId, String password);
 
+	/**
+	 * Delete all the likes, shorts and follower relationships, associated to the user.
+	 *
+	 * @param userId user of the requested feed
+	 * @return (OK,void)
+	 */
 	Result<Void> deleteUser(String userId);
 }

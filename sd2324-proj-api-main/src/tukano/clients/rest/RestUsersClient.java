@@ -6,7 +6,6 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import tukano.api.User;
@@ -21,10 +20,6 @@ public class RestUsersClient extends RestClient implements Users {
 
     protected static final int READ_TIMEOUT = 10000;
     protected static final int CONNECT_TIMEOUT = 10000;
-
-    protected static final int MAX_RETRIES = 10;
-    protected static final int RETRY_SLEEP = 5000;
-
 
     final URI serverURI;
     final Client client;
@@ -109,7 +104,6 @@ public class RestUsersClient extends RestClient implements Users {
     }
 
     @Override
-//    public Result<User> deleteUser(String userId, String pwd) {
     public Result<User> deleteUser(String userId, String pwd) {
         return super.reTry( () -> clt_deleteUser(userId, pwd));
     }

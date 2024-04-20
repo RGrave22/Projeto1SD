@@ -8,17 +8,17 @@ import java.util.UUID;
 @Entity
 public class Follower {
 
+//    @Id
+//    private String id;
     @Id
-    private String id;
-
-
     private String follower;
+    @Id
     private String followed;
 
     public Follower() {}
 
     public Follower(String follower, String followed) {
-        this.id = UUID.randomUUID().toString();
+//        this.id = UUID.randomUUID().toString();
         this.follower = follower;
         this.followed = followed;
     }
@@ -38,7 +38,4 @@ public class Follower {
     public void setFollowed(String followed) {
         this.followed = followed;
     }
-
-
-
 }

@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 public class RestShortsResource implements RestShorts {
 
     final Shorts impl;
-    private static Logger Log = Logger.getLogger(RestShortsResource.class.getName());
 
     public RestShortsResource() {
         this.impl = new JavaShorts();

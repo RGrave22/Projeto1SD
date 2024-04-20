@@ -4,7 +4,6 @@ import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import org.hibernate.sql.Delete;
 import tukano.api.java.Blobs;
 import tukano.api.java.Result;
 import tukano.impl.grpc.generated_java.BlobsGrpc;

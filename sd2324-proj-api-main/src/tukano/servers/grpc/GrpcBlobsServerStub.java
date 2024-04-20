@@ -8,7 +8,6 @@ import tukano.api.java.Blobs;
 import tukano.api.java.Result;
 import tukano.impl.grpc.generated_java.BlobsGrpc;
 import tukano.impl.grpc.generated_java.BlobsProtoBuf.*;
-import tukano.impl.grpc.generated_java.ShortsProtoBuf;
 import tukano.servers.java.JavaBlobs;
 
 public class GrpcBlobsServerStub implements BlobsGrpc.AsyncService, BindableService {

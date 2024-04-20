@@ -8,28 +8,25 @@ import java.util.UUID;
 @Entity
 public class Likes {
 
+//    @Id
+//    private String id;
     @Id
-    private String id;
-
-
     private String userId;
-
+    @Id
     private String shortId;
 
 
     public Likes() {}
 
     public Likes(String userId, String shortId) {
-        this.id = UUID.randomUUID().toString();
+//        this.id = UUID.randomUUID().toString();
         this.userId = userId;
         this.shortId = shortId;
     }
 
-
-
-    public String getId() {
-        return id;
-    }
+//    public String getId() {
+//        return id;
+//    }
 
     public String getShortId() {
         return shortId;

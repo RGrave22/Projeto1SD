@@ -4,21 +4,16 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import tukano.api.Short;
-import tukano.api.User;
 import tukano.api.java.Result;
 import tukano.api.java.Result.ErrorCode;
 import tukano.api.java.Shorts;
 import tukano.impl.grpc.generated_java.ShortsGrpc;
 import tukano.impl.grpc.generated_java.ShortsProtoBuf.*;
-//import tukano.impl.grpc.generated_java.UsersProtoBuf.DeleteUserArgs;
-import tukano.impl.grpc.generated_java.UsersProtoBuf;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 import static tukano.api.java.Result.error;
 import static tukano.api.java.Result.ok;
@@ -29,7 +24,6 @@ public class GrpcShortsClient implements Shorts {
     private static final long GRPC_REQUEST_TIMEOUT = 10000;
     final ShortsGrpc.ShortsBlockingStub stub;
 
-    private static Logger Log = Logger.getLogger(GrpcShortsClient.class.getName());
 
     public GrpcShortsClient(URI serverURI) {
         var channel = ManagedChannelBuilder.forAddress(serverURI.getHost(), serverURI.getPort()).usePlaintext().build();
@@ -38,7 +32,6 @@ public class GrpcShortsClient implements Shorts {
 
     @Override
     public Result<Short> createShort(String userId, String password) {
-//        Log.info("GRPC CLIENT Creating short " + userId + " with password " + password);
         return toJavaResult(() -> {
             var res = stub.createShort(CreateShortArgs.newBuilder()
                     .setUserId(userId)

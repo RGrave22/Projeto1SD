@@ -2,10 +2,6 @@ package tukano.api;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import tukano.servers.java.JavaShorts;
-
-import java.util.logging.Logger;
-
 
 /**
  * Represents a Short video uploaded by an user.
@@ -26,7 +22,6 @@ public class Short {
 	long timestamp;
 	int totalLikes;
 
-	private static Logger Log = Logger.getLogger(JavaShorts.class.getName());
 
 	public Short() {}
 	

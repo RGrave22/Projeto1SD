@@ -7,14 +7,11 @@ import tukano.api.java.Result;
 import utils.Sleep;
 
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 
 public class RestClient {
     protected static final int MAX_RETRIES = 3;
     protected static final int RETRY_SLEEP = 1000;
-
-//    private static Logger Log = Logger.getLogger(RestClient.class.getName());
 
 
     protected <T> Result<T> reTry(Supplier<Result<T>> func) {

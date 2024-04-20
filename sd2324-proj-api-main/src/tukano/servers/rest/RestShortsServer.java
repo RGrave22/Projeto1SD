@@ -13,8 +13,6 @@ public class RestShortsServer {
 
     static Discovery discovery = Discovery.getInstance();
 
-//    private static Logger Log = Logger.getLogger(RestUsersServer.class.getName());
-
     static {
         System.setProperty("java.net.preferIPv4Stack", "true");
     }

@@ -10,14 +10,11 @@ import tukano.impl.grpc.generated_java.UsersGrpc;
 import tukano.impl.grpc.generated_java.UsersProtoBuf.*;
 import tukano.servers.java.JavaUsers;
 
-import java.util.logging.Logger;
 
 import static tukano.impl.grpc.common.DataModelAdaptor.GrpcUser_to_User;
 import static tukano.impl.grpc.common.DataModelAdaptor.User_to_GrpcUser;
 
 public class GrpcUsersServerStub implements UsersGrpc.AsyncService, BindableService {
-
-//    private static Logger Log = Logger.getLogger(GrpcUsersServerStub.class.getName());
 
     Users impl = new JavaUsers();
 
@@ -70,15 +67,10 @@ public class GrpcUsersServerStub implements UsersGrpc.AsyncService, BindableServ
 
     @Override
     public void deleteUser(DeleteUserArgs request, StreamObserver<DeleteUserResult> responseObserver) {
-//        Log.info("DELETEUSER");
         String userId = request.getUserId();
         String password = request.getPassword();
 
-//        Log.info("USERID: " + userId + " PWD: " + password);
-
         var res = impl.deleteUser(userId, password);
-
-//        Log.info("DELETEUSER res: " + res.error().name());
 
         if(!res.isOK())
             responseObserver.onError(errorCodeToStatus(res.error()));

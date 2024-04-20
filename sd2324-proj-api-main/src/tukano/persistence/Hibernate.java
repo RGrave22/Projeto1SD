@@ -15,8 +15,6 @@ public class Hibernate {
     private SessionFactory sessionFactory;
     private static Hibernate instance;
 
-
-
     private Hibernate() {
         try {
             sessionFactory = new Configuration()

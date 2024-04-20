@@ -21,8 +21,6 @@ public class JavaBlobs implements Blobs {
     private static final String DIR_PATH = System.getProperty("user.dir");
 
 
-//    private static Logger Log = Logger.getLogger(JavaBlobs.class.getName());
-
     @Override
     public Result<Void> upload(String blobId, byte[] bytes) {
 
@@ -31,29 +29,21 @@ public class JavaBlobs implements Blobs {
 
         Path filePath = Paths.get(String.format(FILE_PATH, DIR_PATH, blobId));
 
-
-//        Log.info("UPLOAD: " + filePath);
-
         if(!Files.exists(filePath)) {
-//            Log.info("FILE NOT EXISTS : " + filePath);
             try {
                 Files.createFile(filePath);
                 Files.write(filePath, bytes);
-//                Log.info("FILE WRITTEN : " + filePath);
                 return Result.ok();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         } else {
-//            Log.info("FILE EXISTS : " + filePath);
             try {
                 byte[] existingBytes = Files.readAllBytes(filePath);
                 if(!Arrays.equals(existingBytes, bytes)) {
-//                    Log.info("CONFLICT : " + filePath);
                     return Result.error(Result.ErrorCode.CONFLICT);
                 }
                 else {
-//                    Log.info("WITHOUT CONFLICT : " + filePath);
                     return Result.ok();
                 }
             } catch (IOException e) {
@@ -64,7 +54,6 @@ public class JavaBlobs implements Blobs {
 
     @Override
     public Result<byte[]> download(String blobId) {
-//        Log.info("DOWNLOAD: " + blobId);
 
         Path filePath = Paths.get(String.format(FILE_PATH, DIR_PATH, blobId));
 
@@ -86,22 +75,17 @@ public class JavaBlobs implements Blobs {
 
         Path filePath = Paths.get(String.format(FILE_PATH, DIR_PATH, blobId));
 
-//        Log.info("DELETE : " + filePath);
-
         try {
             Files.delete(filePath);
             return Result.ok();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
     public Result<Integer> getNumFiles() {
         Path folderPath = Paths.get(System.getProperty("user.dir"));
-
-//        Log.info("FOLDER_PATH : " + folderPath);
 
         File folder = new File(String.valueOf(folderPath));
 
@@ -109,7 +93,6 @@ public class JavaBlobs implements Blobs {
         int count = 0;
 
         if(!Files.exists(path)) {
-//            Log.info("FOLDER_PATH NOT EXISTS ");
             return Result.ok(count);
         }
 
@@ -120,7 +103,6 @@ public class JavaBlobs implements Blobs {
                 count++;
             }
         }
-//        Log.info("FOLDER_PATH EXISTS : " + count);
         return Result.ok(count);
     }
 }
