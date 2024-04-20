@@ -65,12 +65,6 @@ public class JavaShorts implements Shorts {
             return Result.error(resultsUser.error());
         }
 
-//        if(userRes.error().equals(Result.ErrorCode.NOT_FOUND)) {
-//            return Result.error(Result.ErrorCode.NOT_FOUND);
-//        } else if(userRes.error().equals(Result.ErrorCode.FORBIDDEN)) {
-//            return Result.error(Result.ErrorCode.FORBIDDEN);
-//        }
-
         String shortId = UUID.randomUUID().toString();
         URI blobUri = getBlobUri();
         String blobId = "SH" + UUID.randomUUID();
@@ -102,12 +96,6 @@ public class JavaShorts implements Shorts {
         if(!resultsUser.isOK()) {
             return Result.error(resultsUser.error());
         }
-
-//        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
-//            return Result.error(Result.ErrorCode.NOT_FOUND);
-//        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
-//            return Result.error(Result.ErrorCode.FORBIDDEN);
-//        }
 
         var likesList = db.sql("SELECT * FROM Likes l WHERE l.shortId LIKE '" + shortId + "'", Likes.class);
         for(Likes like: likesList) {
@@ -165,12 +153,6 @@ public class JavaShorts implements Shorts {
             return Result.error(resultsUser.error());
         }
 
-//        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
-//            return Result.error(Result.ErrorCode.NOT_FOUND);
-//        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
-//            return Result.error(Result.ErrorCode.FORBIDDEN);
-//        }
-
         var followList = db.sql("SELECT * FROM Follower f WHERE f.follower LIKE '" + userId1 + "' AND f.followed LIKE '" + userId2 + "'", Follower.class);
 
         if(!followList.isEmpty() && isFollowing) {
@@ -210,11 +192,6 @@ public class JavaShorts implements Shorts {
         if(!resultsUser.isOK()) {
             return Result.error(resultsUser.error());
         }
-//        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
-//            return Result.error(Result.ErrorCode.NOT_FOUND);
-//        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
-//            return Result.error(Result.ErrorCode.FORBIDDEN);
-//        }
 
         var followersList = db.sql("SELECT f.follower FROM Follower f WHERE f.followed LIKE '" + userId + "'", String.class);
 
@@ -234,12 +211,6 @@ public class JavaShorts implements Shorts {
         if(!resultsUser.isOK()) {
             return Result.error(resultsUser.error());
         }
-
-//        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
-//            return Result.error(Result.ErrorCode.NOT_FOUND);
-//        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
-//            return Result.error(Result.ErrorCode.FORBIDDEN);
-//        }
 
         var likesList = db.sql("SELECT * FROM Likes l WHERE l.userId LIKE '" + userId + "' AND l.shortId LIKE '" + shortId + "'", Likes.class);
 
@@ -286,12 +257,6 @@ public class JavaShorts implements Shorts {
             return Result.error(resultsUser.error());
         }
 
-//        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
-//            return Result.error(Result.ErrorCode.NOT_FOUND);
-//        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
-//            return Result.error(Result.ErrorCode.FORBIDDEN);
-//        }
-
         var likesList = db.sql("SELECT * FROM Likes l WHERE l.shortId LIKE '" + shortId + "'", Likes.class);
 
         List<String> usersThatLiked = new ArrayList<>();
@@ -309,12 +274,6 @@ public class JavaShorts implements Shorts {
         if(!resultsUser.isOK()) {
             return Result.error(resultsUser.error());
         }
-
-//        if(userResult.error().equals(Result.ErrorCode.NOT_FOUND)) {
-//            return Result.error(Result.ErrorCode.NOT_FOUND);
-//        } else if(userResult.error().equals(Result.ErrorCode.FORBIDDEN)) {
-//            return Result.error(Result.ErrorCode.FORBIDDEN);
-//        }
 
         var followedUsers = db.sql("SELECT f.followed FROM Follower f WHERE f.follower LIKE '" + userId + "'", String.class);
 
@@ -348,12 +307,10 @@ public class JavaShorts implements Shorts {
         if(!likesToRemove.isEmpty()) {
             for(Likes likeObj: likesToRemove) {
                 var shortObj = db.sql("SELECT * FROM Short s WHERE s.shortId LIKE '" + likeObj.getShortId() + "'", Short.class);
-//                if(!shortObj.isEmpty()) {
                 Short sh = shortObj.get(0);
                 sh.removeLike();
                 db.update(sh);
                 db.delete(likeObj);
-//                }
             }
         }
 
@@ -380,20 +337,6 @@ public class JavaShorts implements Shorts {
                 db.delete(followerObj);
             }
         }
-
-//        var likesToRemove = db.sql("SELECT * FROM Likes l WHERE l.userId LIKE '" + userId + "'", Likes.class);
-//
-//        if(!likesToRemove.isEmpty()) {
-//            for(Likes likeObj: likesToRemove) {
-//                var shortObj = db.sql("SELECT * FROM Short s WHERE s.shortId LIKE '" + likeObj.getShortId() + "'", Short.class);
-//                if(!shortObj.isEmpty()) {
-//                    Short sh = shortObj.get(0);
-//                    sh.removeLike();
-//                    db.update(sh);
-//                    db.delete(likeObj);
-//                }
-//            }
-//        }
 
         return Result.ok();
     }
